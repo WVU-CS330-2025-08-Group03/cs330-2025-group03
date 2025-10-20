@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 /**
  * Middleware to protect routes by verifying JWT in cookies.
@@ -10,6 +10,9 @@ const authMiddleware = (req, res, next) => {
 
   try {
     // Verify the token using the secret
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'JWT secret not configured' });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // Attach the decoded token (user info) to the request
     next(); // Proceed to the next middleware or route handler
@@ -18,4 +21,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;

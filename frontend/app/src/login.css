@@ -1,0 +1,44 @@
+.container {
+        max-width: 420px;
+        margin: 36px auto;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .toggle-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .toggle-buttons button {
+        padding: 8px 14px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .toggle-buttons button.active {
+        background: #2563eb;
+        color: white;
+        border-color: #1d4ed8;
+      }
+
+      form {
+        display: none;
+      }
+
+      form.active {
+        display: block;
+      }
+
+      .switch a {
+        color: #2563eb;
+        cursor: pointer;
+        text-decoration: underline;
+      }

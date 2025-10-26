@@ -26,7 +26,7 @@ function App() {
       </section>
 
       <footer>
-        <p>© 2025 RealEase — Your path to homeownership made simple.</p>
+        <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
       </footer>
     </main>
   );

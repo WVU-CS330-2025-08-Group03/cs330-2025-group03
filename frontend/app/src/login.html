@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="login.css" />
+    <script src="auth.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="toggle-buttons">
+        <button id="btnLogin" class="active" type="button">Login</button>
+        <button id="btnSignup" type="button">Sign Up</button>
+      </div>
+
+      <form id="loginForm" class="active">
+        <h2>Login</h2>
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name=""passwork placeholder="Password" required />
+        <button type="submit">Login</button>
+        <div class="switch">
+          Don't have an account? <a id="showSignup">Sign up</a>
+        </div>
+      </form>
+
+      <form id="signupForm">
+        <h2>Sign Up</h2>
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Create Account</button>
+        <div class="switch">
+          Already have an account? <a id="showLogin">Login</a>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const showSignup = document.getElementById('showSignup');
+      const showLogin = document.getElementById('showLogin');
+      const btnLogin = document.getElementById('btnLogin');
+      const btnSignup = document.getElementById('btnSignup');
+
+      function showForm(which) {
+        if (which === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+          btnLogin.classList.add('active');
+          btnSignup.classList.remove('active');
+        } else {
+          signupForm.classList.add('active');
+          loginForm.classList.remove('active');
+          btnSignup.classList.add('active');
+          btnLogin.classList.remove('active');
+        }
+      }
+
+      // Button clicks
+      btnLogin.addEventListener('click', () => showForm('login'));
+      btnSignup.addEventListener('click', () => showForm('signup'));
+
+      // Inline links also toggle (keeps existing behavior)
+      showSignup.addEventListener('click', () => showForm('signup'));
+      showLogin.addEventListener('click', () => showForm('login'));
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const username = event.target.username.value;
+        const password = event.target.password.value;
+        try{ 
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password} )
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Login successful');
+                console.log('User:', result);
+            } else {
+                alert(result.message || 'Login failed.');
+            }
+        } catch(error) {
+            console.error('Error logging in:', error);
+            alert('An error occurred. Please try again.')
+        }
+      }
+      loginForm.addEventListener('submit', handleLogin);
+    </script>
+  </body>
+</html>

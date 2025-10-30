@@ -1,4 +1,4 @@
-/* App.css – RealEase homepage styling */
+
 
 #root {
   max-width: 1280px;
@@ -32,6 +32,7 @@
   border-radius: 6px;
   background-color: #1976d2;
   color: #5fad66;
+  border-color: #333;
   cursor: pointer;
 }
 

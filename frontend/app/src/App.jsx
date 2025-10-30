@@ -1,7 +1,9 @@
 import React from "react";
 import "./App.css";
+import { Link, Routes, Route } from 'react-router-dom'
+import Login from "./login.jsx";
 
-function App() {
+function Home() {
   return (
     <main className="homepage">
       <header className="hero">
@@ -27,9 +29,20 @@ function App() {
 
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
+        <Link to="/login" className="cta-button">Login</Link> 
       </footer>
     </main>
-  );
+  )
+}
+
+// login redirect 
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  )
 }
 
 export default App;

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+/* 
+    This HTML file sets up a web page that uses Leaflet and Esri Leaflet to display raster data from a specified ImageServer.
+    It includes the necessary CSS and JavaScript libraries, initializes a map centered on the United States, and adds
+    an image layer from the USDA CDL ImageServer with specified opacity.
+
+    Note: This uses the wrong database, just to illustrate the concept.
+*/
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot 'n Crop - Raster Data Visualization</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Esri Leaflet JavaScript -->
+    <script src="https://unpkg.com/esri-leaflet@3.0.5/dist/esri-leaflet.js"></script>
+</head>
+
+<body>
+    <h1>Plot 'n Crop - Raster Data Visualization</h1>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        // JavaScript code will be added here in the next section
+        var map = L.map('map').setView([39.8283, -98.5795], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var imageLayer = L.esri.imageMapLayer({
+            url: 'https://pdi.scinet.usda.gov/image/rest/services/CDL_WM/ImageServer',
+            opacity: 0.75
+        }).addTo(map);
+    </script>
+</body>
+
+</html>

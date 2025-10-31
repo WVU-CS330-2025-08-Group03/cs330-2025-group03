@@ -7,13 +7,13 @@
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
 }
-/* body {
+ body {
   background-color: #444;
-} */
+} 
 
 /* Hero section */
 .hero {
-  background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+  background: linear-gradient(135deg, #43b8c8, #5fad66);
   padding: 4rem 2rem;
   border-radius: 12px;
   margin-bottom: 3rem;
@@ -23,7 +23,9 @@
   font-size: 2.5rem;
   color: #333;
 }
-
+.hero p{
+  color: #333;
+}
 .cta-button {
   margin-top: 1.5rem;
   padding: 0.8rem 1.5rem;
@@ -45,11 +47,12 @@
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2rem;
+  color: #333;
 }
 
 .features div {
   width: 280px;
-  background: #fff;
+  background: linear-gradient(135deg, #43b8c8, #5fad66);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);

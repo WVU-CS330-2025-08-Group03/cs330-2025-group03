@@ -26,9 +26,10 @@ function Home() {
           <p>Message trusted local agents and schedule tours directly.</p>
         </div>
       </section>
-       <Link to="/login" className="cta-button">Login</Link> 
+       
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
+        <Link to="/login" className="">Login</Link> 
       </footer>
     </main>
   )

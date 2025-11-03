@@ -1,5 +1,5 @@
 
-.login-page {
+.container {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -11,44 +11,20 @@
   background: linear-gradient(135deg, #43b8c8, #5fad66);
 }
 
-.login-page .form-label{
- color: #333;
-}
-
-.login-page .btn-primary {
+button{
   background-color: #1976d2;
-  border-color: #333;
   color: #5fad66;
 }
-.login-page .card {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  border-radius: 0;
-  box-shadow: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.toggle-buttons .active {
+  background-color: #1976d2;
+  color: #5fad66;
+}
+.switch{
+  color: #333;
+}
+h2{
+  color: #333;
 }
 
 
 
-.login-page .card-title {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.login-page .form-label {
-  font-weight: 600;
-}
-
-.login-page .form-control {
-  font-size: 1.05rem;
-  padding: 0.75rem 0.9rem;
-}
-
-.login-page .btn-primary {
-  font-size: 1.05rem;
-  padding: 0.75rem 1.25rem;
-}

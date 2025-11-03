@@ -29,7 +29,7 @@ function Home() {
        
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
-        <Link to="/login" className="">Login</Link> 
+        <Link to="/login" className="cta-button">Login</Link> 
       </footer>
     </main>
   )

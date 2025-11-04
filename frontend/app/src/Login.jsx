@@ -8,17 +8,21 @@ function Login() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(""); // Clear error when user types
   };
 
   const showForm = (which) => {
     setIsLogin(which === "login");
+    setError(""); // Clear error when switching forms
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     const { username, email, password } = formData;
     // Backend routes are under /auth; Vite proxy will forward to the backend port during dev
     const endpoint = isLogin ? "/auth/login" : "/auth/register";
@@ -39,46 +43,49 @@ function Login() {
         alert(isLogin ? "Login successful" : "Account created!");
         console.log("Server:", result);
       } else {
-        alert(result.error || result.message || "Something went wrong.");
+        setError(result.error || result.message || "Something went wrong.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred. Please try again.");
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
     <div className="container">
-      <div className="toggle-buttons">
-        <button
-          className={isLogin ? "active" : ""}
-          onClick={() => showForm("login")}
-        >
-          Login
-        </button>
-        <button
-          className={!isLogin ? "active" : ""}
-          onClick={() => showForm("signup")}
-        >
-          Sign Up
-        </button>
-      </div>
+      <div className="auth-card">
+        <div className="toggle-buttons">
+          <button
+            className={isLogin ? "active" : ""}
+            onClick={() => showForm("login")}
+          >
+            Login
+          </button>
+          <button
+            className={!isLogin ? "active" : ""}
+            onClick={() => showForm("signup")}
+          >
+            Sign Up
+          </button>
+        </div>
 
-      {isLogin ? (
-        <form onSubmit={handleSubmit} className="active">
-          <h2>Login</h2>
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
+        {error && <div className="error-message">{error}</div>}
+
+        {isLogin ? (
+          <form onSubmit={handleSubmit} className="active">
+            <h2>Login</h2>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             required
@@ -123,6 +130,7 @@ function Login() {
           </div>
         </form>
       )}
+      </div>
     </div>
   );
 }

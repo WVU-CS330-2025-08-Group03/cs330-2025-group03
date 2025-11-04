@@ -20,12 +20,14 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, email, password } = formData;
-    const endpoint = isLogin ? "/api/login" : "/api/signup";
+    // Backend routes are under /auth; Vite proxy will forward to the backend port during dev
+    const endpoint = isLogin ? "/auth/login" : "/auth/register";
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // allow HTTP-only auth cookie
         body: JSON.stringify(
           isLogin ? { username, password } : { username, email, password }
         ),
@@ -35,9 +37,9 @@ function Login() {
 
       if (response.ok) {
         alert(isLogin ? "Login successful" : "Account created!");
-        console.log("User:", result);
+        console.log("Server:", result);
       } else {
-        alert(result.message || "Something went wrong.");
+        alert(result.error || result.message || "Something went wrong.");
       }
     } catch (error) {
       console.error("Error:", error);

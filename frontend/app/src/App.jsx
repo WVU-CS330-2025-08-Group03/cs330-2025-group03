@@ -9,7 +9,7 @@ function Home() {
       <header className="hero">
         <h1>Find Your Dream Home</h1>
         <p>Discover listings, compare neighborhoods, and connect with agents — all in one place.</p>
-        <button className="cta-button">Start Your Search</button>
+        <Link to="/login" className="cta-button">Start your search</Link> 
       </header>
 
       <section className="features">
@@ -29,7 +29,7 @@ function Home() {
        
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
-        <Link to="/login" className="cta-button">Login</Link> 
+        
       </footer>
     </main>
   )

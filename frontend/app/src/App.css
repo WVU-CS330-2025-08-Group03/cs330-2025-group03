@@ -27,18 +27,21 @@
   color: #333;
 }
 .cta-button {
-  margin-top: 1.5rem;
-  padding: 0.8rem 1.5rem;
+  display: inline-block;
+  margin-top: 2.5rem;
+  padding: 0.7rem 1.7rem;
   font-size: 1rem;
   border: none;
   border-radius: 6px;
   background-color: #1976d2;
   color: #5fad66;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .cta-button:hover {
-  background-color: #0d47a1;
+  background-color: #0d47a1; 
+  color: #54995a;
 }
 
 /* Features section */
@@ -48,6 +51,10 @@
   flex-wrap: wrap;
   gap: 2rem;
   color: #333;
+}
+.features h2 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
 .features div {

@@ -8,7 +8,7 @@
   font-family: 'Segoe UI', sans-serif;
 }
  body {
-  background-color: #444;
+  background: linear-gradient(135deg, #0d2f2c, #192f1b);
 } 
 
 /* Hero section */
@@ -59,7 +59,7 @@
 
 .features div {
   width: 280px;
-  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  background: linear-gradient(180deg, #43b8c8, #5fad66);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);

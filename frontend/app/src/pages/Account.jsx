@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Account.css';
 
+
 export default function Account() {
   const navigate = useNavigate();
   // mock data for now
@@ -15,6 +16,7 @@ export default function Account() {
         </button>
         <h1>Your Account</h1>
         <p>Manage profile, saved listings, and search preferences.</p>
+        
       </header>
 
       <section className="account-grid">

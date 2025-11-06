@@ -1,15 +1,58 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import fs from 'fs';
 
+// Set up __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables
+dotenv.config();
+
+// Define the SSL certificate path
+const sslCertPath = join(__dirname, 'DigiCertGlobalRootG2.crt.pem');
+
+// Verify SSL certificate exists
+try {
+  console.log(`Loading CA cert from: ${sslCertPath}`);
+  fs.accessSync(sslCertPath, fs.constants.R_OK);
+  console.log('Connecting to Azure MySQL...');
+} catch (error) {
+  console.error('Failed to load SSL certificate:', error.message);
+  process.exit(1);
+}
+
+// Create the connection pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT) || 3306,
+  ssl: {
+    ca: fs.readFileSync(sslCertPath),
+    rejectUnauthorized: true
+  },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
-module.exports = pool;
+// Test the connection
+const testConnection = async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log('Successfully connected to MySQL');
+    connection.release();
+  } catch (error) {
+    console.error('Failed to connect to MySQL:', error.message);
+    process.exit(1);
+  }
+};
+
+// Run the connection test
+testConnection();
+
+export default pool;

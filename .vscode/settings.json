@@ -3,17 +3,20 @@
         {
             "mysqlOptions": {
                 "authProtocol": "default",
-                "enableSsl": "Disabled"
+                "enableSsl": "Enabled",
+                "ssl": {
+                    "ca": "C:\\Users\\Azmee\\git\\cs330-2025-group03\\backend\\config\\DigiCertGlobalRootG2.crt.pem"
+                }
             },
             "ssh": "Disabled",
             "previewLimit": 50,
-            "server": "localhost",
+            "server": "202508-cs330-001-85914-group03-mysql-db.mysql.database.azure.com",
             "port": 3306,
             "driver": "MySQL",
-            "name": "Local MySQL",
-            "username": "root",
-            "password": "password",
-            "database": "authdb"
+            "name": "202508-cs330-001-85914-group03-mysql-db.mysql.database.azure.com",
+            "database": "mysql",
+            "username": "mysqladmin",
+            "password": "EatShitPitt!2025.01"
         }
     ]
 }

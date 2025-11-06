@@ -1,54 +1,225 @@
 
-.login-page {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+* {
+  margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  box-sizing: border-box;
 }
 
-.login-page .form-label{
- color: #333;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.login-page .btn-primary {
-  background-color: #1976d2;
-  border-color: #333;
-  color: #5fad66;
-}
-.login-page .card {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  border-radius: 0;
-  box-shadow: none;
+.container {
+  min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  padding: 0;
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
-
-
-.login-page .card-title {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+/* Animated background circles */
+.container::before,
+.container::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 20s infinite ease-in-out;
 }
 
-.login-page .form-label {
+.container::before {
+  width: 500px;
+  height: 500px;
+  top: -200px;
+  right: -200px;
+  animation-delay: 0s;
+}
+
+.container::after {
+  width: 600px;
+  height: 600px;
+  bottom: -250px;
+  left: -250px;
+  animation-delay: 2s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+.auth-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 520px;
+  padding: 50px 60px;
+  position: relative;
+  z-index: 1;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 40px;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 40px;
+  background: #f3f4f6;
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 14px 28px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 16px;
   font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.login-page .form-control {
-  font-size: 1.05rem;
-  padding: 0.75rem 0.9rem;
+.toggle-buttons button:hover {
+  color: #374151;
 }
 
-.login-page .btn-primary {
-  font-size: 1.05rem;
-  padding: 0.75rem 1.25rem;
+.toggle-buttons button.active {
+  background: white;
+  color: #43b8c8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+form input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+  color: #1a1a1a;
+}
+
+form input:focus {
+  outline: none;
+  border-color: #43b8c8;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(67, 184, 200, 0.1);
+  color: #1a1a1a;
+}
+
+form input::placeholder {
+  color: #9ca3af;
+}
+
+button[type="submit"] {
+  margin-top: 12px;
+  padding: 16px 28px;
+  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(67, 184, 200, 0.4);
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(67, 184, 200, 0.5);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+.switch {
+  text-align: center;
+  margin-top: 32px;
+  color: #4b5563;
+  font-size: 15px;
+}
+
+.switch a {
+  color: #1e7a8c;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.switch a:hover {
+  color: #2d9e50;
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #dc2626;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+

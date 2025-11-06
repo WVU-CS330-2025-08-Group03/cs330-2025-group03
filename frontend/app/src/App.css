@@ -8,7 +8,10 @@
   font-family: 'Segoe UI', sans-serif;
 }
 body {
-  background-color: #f7f7f7; /* lighter page background instead of dark overlay */
+  /* dark green full-page background */
+  background: linear-gradient(180deg, #022b20 0%, #04382a 40%, #064e3b 100%);
+  background-attachment: fixed;
+  color: #e6fff5; /* default light text to read on dark background */
 }
 
 /* Hero section */

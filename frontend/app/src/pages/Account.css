@@ -10,10 +10,10 @@
   min-height: 100vh;
   margin: 0;
   padding: 2rem;
-  /* make the main account container a soft blue */
-  background: linear-gradient(135deg, #e6f9ff 0%, #d1f3ff 100%);
+  /* make the main account container transparent so the page background shows through */
+  background: transparent;
   border: none;
-  color: #03384d; /* darker blue text for contrast */
+  color: #e6fff5; /* light text for contrast on dark page background */
 }
 .back-button {
   background: transparent;
@@ -36,9 +36,9 @@
 
 .account-page header h1 {
   margin: 0 0 0.5rem 0;
-  color: var(--accent-blue);
+  color: #d6ffe8;
 }
-.account-page header p { color: rgba(3,43,43,0.8); margin: 0; }
+.account-page header p { color: rgba(230,255,245,0.85); margin: 0; }
 
 .account-grid {
   display: grid;
@@ -115,17 +115,7 @@
 }
 .card button:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,0.12); }
 
-.account-page .empty { color: rgba(3,43,43,0.6); }
-
-/* Make the middle (second) card more prominently blue */
-.account-grid .card:nth-child(2) {
-  background: linear-gradient(180deg, #bfefff 0%, #9fe6ff 100%);
-  border: 1px solid rgba(14,165,233,0.22);
-}
-.account-grid .card:nth-child(2) h2 {
-  color: #0366a6; /* darker blue for the heading */
-}
-
+.account-page .empty { color: rgba(230,255,245,0.7); }
 .card:hover,
 .card:focus-within {
   transform: translateY(-4px);

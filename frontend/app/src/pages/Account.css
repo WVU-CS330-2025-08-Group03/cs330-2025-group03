@@ -1,0 +1,135 @@
+.account-page {
+  --accent-green: #10b981; /* emerald */
+  --accent-blue: #0ea5e9;  /* sky/blue */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem;
+  /* make the main account container a soft blue */
+  background: linear-gradient(135deg, #e6f9ff 0%, #d1f3ff 100%);
+  border: none;
+  color: #03384d; /* darker blue text for contrast */
+}
+.back-button {
+  background: transparent;
+  border: none;
+  color: var(--accent-blue);
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+}
+
+.back-button:hover {
+  background: rgba(14,165,233,0.1);
+  transform: translateX(-4px);
+}
+
+.account-page header h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--accent-blue);
+}
+.account-page header p { color: rgba(3,43,43,0.8); margin: 0; }
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.card {
+  padding: 1.25rem;
+  /* make the small card area a subtle blue */
+  background: linear-gradient(180deg, #e6f9ff 0%, #dff6ff 100%);
+  border-radius: 8px;
+  /* stronger blue border so the square outline reads as blue */
+  border: 1px solid rgba(14,165,233,0.28);
+  box-shadow: 0 6px 18px rgba(6,30,50,0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.card h2 { color: var(--accent-blue); margin-top: 0; }
+
+.profile-picture-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.profile-picture {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f9ff;
+  border: 3px solid var(--accent-blue);
+}
+
+.profile-picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.change-picture-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(14, 165, 233, 0.8) !important;
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.5rem !important;
+  margin: 0 !important;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.profile-picture:hover .change-picture-btn {
+  opacity: 1;
+}
+
+.profile-info {
+  margin-top: 1rem;
+}
+
+.card button {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+  cursor: pointer;
+}
+.card button:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,0.12); }
+
+.account-page .empty { color: rgba(3,43,43,0.6); }
+
+/* Make the middle (second) card more prominently blue */
+.account-grid .card:nth-child(2) {
+  background: linear-gradient(180deg, #bfefff 0%, #9fe6ff 100%);
+  border: 1px solid rgba(14,165,233,0.22);
+}
+.account-grid .card:nth-child(2) h2 {
+  color: #0366a6; /* darker blue for the heading */
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(14,165,233,0.12);
+  outline: 3px solid rgba(14,165,233,0.08);
+}
+

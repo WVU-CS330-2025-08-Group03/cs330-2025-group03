@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import { Link, Routes, Route } from 'react-router-dom'
 import Login from "./login.jsx";
+import Account from './pages/Account';
 
 function Home() {
   return (
@@ -28,8 +29,9 @@ function Home() {
       </section>
        
       <footer>
-        <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
-        <Link to="/login" className="">Login</Link> 
+  <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
+  <Link to="/login" className="">Login</Link> |
+  <Link to="/account">Account</Link>
       </footer>
     </main>
   )
@@ -40,7 +42,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/account" element={<Account />} />
     </Routes>
   )
 }

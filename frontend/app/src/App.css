@@ -1,15 +1,15 @@
 
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
 }
- body {
-  background-color: #444;
-} 
+body {
+  background-color: #f7f7f7; /* lighter page background instead of dark overlay */
+}
 
 /* Hero section */
 .hero {

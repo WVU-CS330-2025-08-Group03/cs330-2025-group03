@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 
 function Login() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: "",
@@ -37,17 +39,24 @@ function Login() {
         ),
       });
 
+      console.log("Response status:", response.status);
       const result = await response.json();
+      console.log("Response data:", result);
 
       if (response.ok) {
-        alert(isLogin ? "Login successful" : "Account created!");
+        alert(isLogin ? "Login successful! Redirecting to city search..." : "Account created! Redirecting to city search...");
         console.log("Server:", result);
+        // Redirect to city search page after successful login/registration
+        setTimeout(() => {
+          navigate("/cities");
+        }, 1000);
       } else {
+        console.error("Login failed:", result);
         setError(result.error || result.message || "Something went wrong.");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setError("An error occurred. Please try again.");
+      console.error("Fetch error:", error);
+      setError("Cannot connect to server. Please ensure the backend is running.");
     }
   };
 

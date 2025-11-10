@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import citiesRoutes from './routes/cities.js';
 import { authenticateToken } from './middleware/authMiddleware.js';
 
 // Load environment variables
@@ -23,6 +24,9 @@ app.use(cookieParser());
 
 // Mount the authentication routes under /auth
 app.use('/auth', authRoutes);
+
+// Mount the cities routes under /api/cities
+app.use('/api/cities', citiesRoutes);
 
 // Test protected route
 app.get('/api/test', authenticateToken, (req, res) => {

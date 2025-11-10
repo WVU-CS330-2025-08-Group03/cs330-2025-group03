@@ -48,11 +48,13 @@ const testConnection = async () => {
     connection.release();
   } catch (error) {
     console.error('Failed to connect to MySQL:', error.message);
-    process.exit(1);
+    console.error('Server will continue but database operations will fail.');
+    console.error('Please add your IP address to Azure MySQL firewall rules.');
+    // Don't exit - allow server to start even if DB connection fails
   }
 };
 
-// Run the connection test
+// Run the connection test (non-blocking)
 testConnection();
 
 export default pool;

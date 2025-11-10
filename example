@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>City Finder - Design Inspiration</title>
+    
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet Map Library CSS & JS from CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""></script>
+      
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Embedded Custom CSS -->
+    <style>
+      /*
+        Main CSS file for the CityFinder application.
+        This file contains custom styles that are not covered by Tailwind CSS utility classes.
+      */
+
+      /* Global body styles */
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* Custom Map Marker Styles for Leaflet.js */
+      /* ----------------------------------------- */
+
+      /* Base container for the custom marker icon.
+         Leaflet adds this class to the divIcon's element. */
+      .marker-container {
+        position: relative; /* establishes positioning context for marker-pin */
+        /* No styles needed here, but it's the parent for the pin */
+      }
+
+      /* The main pin element. This is the teardrop shape. */
+      .marker-container .marker-pin {
+        width: 30px;
+        height: 30px;
+        border-radius: 50% 50% 50% 0; /* Creates the teardrop shape */
+        background: #007bff; /* Standard blue color */
+        position: absolute;
+        transform: rotate(-45deg); /* Rotates the square to look like a pin */
+        left: 50%;
+        top: 50%;
+        margin: -15px 0 0 -15px; /* Centers the pin on its coordinate */
+        border: 2px solid white; /* Adds a clean white border */
+        box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.3); /* Adds depth */
+        transition: all 0.2s ease-in-out; /* Smooth transitions for hover/select */
+      }
+
+      /* The inner white circle of the pin. */
+      .marker-container .marker-pin::after {
+        content: '';
+        width: 14px;
+        height: 14px;
+        margin: 6px 0 0 6px; /* Positions the circle within the pin */
+        background: #ffffff;
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      /* Styles for a marker when it is hovered over. */
+      .marker-hovered .marker-pin {
+        background: #0056b3; /* Darker blue on hover */
+        transform: rotate(-45deg) scale(1.1); /* Slightly enlarges the pin */
+      }
+
+      /* Styles for a marker when it is selected (clicked). */
+      .marker-selected .marker-pin {
+        background: #ff4500; /* A distinct orange/red for selection */
+      }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <div id="root" class="flex flex-col h-screen">
+    <!-- Navbar -->
+    <header class="flex-shrink-0 bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+             <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-blue-600">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 18 15.3 15.3 0 0 1-8 0 15.3 15.3 0 0 1 4-18z"></path>
+              </svg>
+            <span class="ml-3 text-2xl font-bold text-gray-900">
+                CityFinder
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content: Split Screen Layout -->
+    <div class="flex flex-grow overflow-hidden">
+      
+      <!-- Left Panel: Search Form -->
+      <div class="w-full md:w-[450px] lg:w-[500px] flex-shrink-0 bg-white border-r border-gray-200 overflow-y-auto">
+        <div class="p-6">
+          <form>
+            <div class="space-y-6">
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Find Your City</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                   <div class="grid grid-cols-2 gap-2 col-span-2">
+                    <div>
+                      <label for="populationMin" class="block text-sm font-medium text-gray-700 mb-1">Min Pop.</label>
+                      <input type="number" id="populationMin" placeholder="e.g., 100k" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                      <label for="populationMax" class="block text-sm font-medium text-gray-700 mb-1">Max Pop.</label>
+                      <input type="number" id="populationMax" placeholder="e.g., 500k" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-2 col-span-2">
+                    <div>
+                      <label for="proximityDistance" class="block text-sm font-medium text-gray-700 mb-1">Within (mi)</label>
+                      <input type="number" id="proximityDistance" placeholder="e.g., 50" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                    </div>
+                    <div class="relative">
+                      <label for="proximityCity" class="block text-sm font-medium text-gray-700 mb-1">Of Major City</label>
+                      <input type="text" id="proximityCity" placeholder="e.g., New York" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" autocomplete="off" />
+                    </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="costOfLiving" class="block text-sm font-medium text-gray-700 mb-1">Cost of Living</label>
+                      <select id="costOfLiving" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option>Any</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                      </select>
+                  </div>
+                  <div class="col-span-1">
+                      <label for="crimeRate" class="block text-sm font-medium text-gray-700 mb-1">Crime Rate</label>
+                      <select id="crimeRate" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option>Any</option>
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                      </select>
+                  </div>
+                   <div class="col-span-1">
+                      <label for="schoolRatings" class="block text-sm font-medium text-gray-700 mb-1">School Ratings</label>
+                      <select id="schoolRatings" class="w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option>Any</option>
+                        <option>Average</option>
+                        <option>Good</option>
+                        <option>Excellent</option>
+                      </select>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-md font-semibold text-gray-800 mb-2">Data Points to Display</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked=""><span class="text-gray-700 font-medium select-none text-sm">Population</span></label>
+                  <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked=""><span class="text-gray-700 font-medium select-none text-sm">Cost of Living</span></label>
+                  <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked=""><span class="text-gray-700 font-medium select-none text-sm">Crime Rate</span></label>
+                  <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked=""><span class="text-gray-700 font-medium select-none text-sm">School Ratings</span></label>
+                  <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked=""><span class="text-gray-700 font-medium select-none text-sm">Distance from Major City</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <button type="submit" class="w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:bg-gray-400">
+                Find Cities
+              </button>
+            </div>
+          </form>
+
+          <!-- Placeholder for results -->
+           <div class="mt-6">
+              <div class="space-y-2 border-t border-gray-200 pt-4">
+                  <!-- Example List Item -->
+                  <div class="p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 hover:shadow-md transition-all duration-200">
+                      <h3 class="font-bold text-lg text-gray-900">Austin, TX</h3>
+                      <p class="text-gray-600">USA</p>
+                      <p class="text-sm text-gray-500 mt-1">Population: 974,383</p>
+                  </div>
+                   <div class="p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 hover:shadow-md transition-all duration-200">
+                      <h3 class="font-bold text-lg text-gray-900">Denver, CO</h3>
+                      <p class="text-gray-600">USA</p>
+                      <p class="text-sm text-gray-500 mt-1">Population: 711,463</p>
+                  </div>
+              </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- Right Panel: Map -->
+      <div class="flex-grow h-full bg-gray-200">
+        <div id="map" class="h-full w-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Leaflet Map
+    var map = L.map('map').setView([39.8283, -98.5795], 4); // Centered on the US
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(map);
+
+    // Example Markers
+    function createCustomMarker(lat, lng, isSelected, isHovered) {
+        const iconHtml = `<div class="marker-pin"></div>`;
+        let classNames = 'marker-container';
+        if (isSelected) classNames += ' marker-selected';
+        if (isHovered) classNames += ' marker-hovered';
+
+        const icon = L.divIcon({
+            html: iconHtml,
+            className: classNames,
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+        L.marker([lat, lng], { icon }).addTo(map);
+    }
+    
+    // Austin, TX
+    createCustomMarker(30.2672, -97.7431, true, false);
+    // Denver, CO
+    createCustomMarker(39.7392, -104.9903, false, true);
+
+  </script>
+</body>
+</html>

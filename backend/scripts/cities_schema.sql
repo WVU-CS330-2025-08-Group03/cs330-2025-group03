@@ -1,0 +1,55 @@
+-- Create cities table with comprehensive data
+USE authdb;
+
+CREATE TABLE IF NOT EXISTS cities (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  city_name VARCHAR(100) NOT NULL,
+  state VARCHAR(50) NOT NULL,
+  state_code VARCHAR(2) NOT NULL,
+  latitude DECIMAL(10, 8) NOT NULL,
+  longitude DECIMAL(11, 8) NOT NULL,
+  population INT NOT NULL,
+  crime_rate DECIMAL(5, 2) COMMENT 'Crime incidents per 1000 residents',
+  cost_of_living_index DECIMAL(6, 2) COMMENT 'Cost of living index (100 = national average)',
+  distance_from_major_city INT COMMENT 'Distance in miles from nearest major city',
+  nearest_major_city VARCHAR(100),
+  school_rating DECIMAL(3, 1) COMMENT 'Average school rating out of 10',
+  median_home_price INT COMMENT 'Median home price in USD',
+  unemployment_rate DECIMAL(4, 2) COMMENT 'Unemployment rate percentage',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_city_name (city_name),
+  INDEX idx_state (state_code),
+  INDEX idx_population (population),
+  INDEX idx_crime_rate (crime_rate),
+  INDEX idx_cost_of_living (cost_of_living_index),
+  INDEX idx_school_rating (school_rating)
+);
+
+-- Insert sample data for testing (US cities with realistic data)
+INSERT INTO cities (city_name, state, state_code, latitude, longitude, population, crime_rate, cost_of_living_index, distance_from_major_city, nearest_major_city, school_rating, median_home_price, unemployment_rate) VALUES
+('Austin', 'Texas', 'TX', 30.2672, -97.7431, 978908, 38.2, 119.3, 0, 'Austin', 7.8, 550000, 3.2),
+('Round Rock', 'Texas', 'TX', 30.5083, -97.6789, 119468, 15.3, 104.5, 20, 'Austin', 8.5, 425000, 2.8),
+('San Marcos', 'Texas', 'TX', 29.8833, -97.9414, 67224, 42.1, 94.2, 50, 'Austin', 6.9, 285000, 4.1),
+('Seattle', 'Washington', 'WA', 47.6062, -122.3321, 753675, 54.2, 172.3, 0, 'Seattle', 7.2, 825000, 3.5),
+('Bellevue', 'Washington', 'WA', 47.6101, -122.2015, 148164, 19.8, 165.4, 10, 'Seattle', 8.9, 925000, 2.7),
+('Tacoma', 'Washington', 'WA', 47.2529, -122.4443, 217827, 68.5, 112.8, 35, 'Seattle', 6.3, 485000, 4.8),
+('Portland', 'Oregon', 'OR', 45.5152, -122.6784, 652503, 56.7, 140.5, 175, 'Seattle', 7.1, 575000, 3.9),
+('Denver', 'Colorado', 'CO', 39.7392, -104.9903, 715522, 47.3, 126.7, 0, 'Denver', 7.6, 625000, 3.1),
+('Boulder', 'Colorado', 'CO', 40.0150, -105.2705, 107353, 22.4, 154.8, 30, 'Denver', 8.7, 785000, 2.4),
+('Colorado Springs', 'Colorado', 'CO', 38.8339, -104.8214, 478221, 43.1, 98.3, 70, 'Denver', 7.4, 425000, 3.6),
+('Raleigh', 'North Carolina', 'NC', 35.7796, -78.6382, 474069, 28.5, 102.1, 0, 'Raleigh', 8.2, 425000, 2.9),
+('Chapel Hill', 'North Carolina', 'NC', 35.9132, -79.0558, 61960, 12.7, 125.3, 30, 'Raleigh', 9.1, 525000, 2.1),
+('Durham', 'North Carolina', 'NC', 35.9940, -78.8986, 283506, 51.2, 95.7, 25, 'Raleigh', 7.8, 375000, 3.4),
+('Charlotte', 'North Carolina', 'NC', 35.2271, -80.8431, 885708, 45.8, 97.2, 140, 'Raleigh', 7.3, 385000, 3.3),
+('Asheville', 'North Carolina', 'NC', 35.5951, -82.5515, 94589, 34.9, 108.4, 250, 'Charlotte', 7.9, 475000, 3.7),
+('Phoenix', 'Arizona', 'AZ', 33.4484, -112.0740, 1708127, 46.2, 108.9, 0, 'Phoenix', 6.8, 450000, 3.8),
+('Scottsdale', 'Arizona', 'AZ', 33.4942, -111.9261, 241361, 18.4, 134.7, 15, 'Phoenix', 8.4, 725000, 2.6),
+('Tempe', 'Arizona', 'AZ', 33.4255, -111.9400, 195805, 39.7, 103.2, 10, 'Phoenix', 7.5, 425000, 3.5),
+('Nashville', 'Tennessee', 'TN', 36.1627, -86.7816, 689447, 59.3, 102.5, 0, 'Nashville', 7.0, 425000, 3.2),
+('Franklin', 'Tennessee', 'TN', 35.9251, -86.8689, 83454, 13.2, 118.6, 20, 'Nashville', 9.0, 675000, 2.3),
+('Boise', 'Idaho', 'ID', 43.6150, -116.2023, 235684, 27.8, 103.7, 0, 'Boise', 7.7, 525000, 2.9),
+('Ann Arbor', 'Michigan', 'MI', 42.2808, -83.7430, 123851, 24.1, 118.4, 45, 'Detroit', 8.8, 425000, 2.5),
+('Madison', 'Wisconsin', 'WI', 43.0731, -89.4012, 269840, 26.3, 110.2, 150, 'Chicago', 8.3, 425000, 2.7),
+('Minneapolis', 'Minnesota', 'MN', 44.9778, -93.2650, 429954, 52.4, 109.6, 0, 'Minneapolis', 7.4, 375000, 3.4),
+('St. Paul', 'Minnesota', 'MN', 44.9537, -93.0900, 311527, 48.9, 104.8, 10, 'Minneapolis', 7.2, 325000, 3.6);

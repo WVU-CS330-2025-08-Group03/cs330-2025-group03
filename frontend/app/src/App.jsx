@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import { Link, Routes, Route } from 'react-router-dom'
 import Login from "./Login.jsx";
+import CitySearch from "./CitySearch.jsx";
 
 function Home() {
   return (
@@ -41,6 +42,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/cities" element={<CitySearch />} />
     </Routes>
   )
 }

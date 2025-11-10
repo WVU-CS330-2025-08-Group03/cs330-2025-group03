@@ -18,7 +18,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  background: linear-gradient(135deg, #0d2f2c, #192f1b);
   padding: 0;
   margin: 0;
   position: fixed;
@@ -157,7 +157,7 @@ form input::placeholder {
 button[type="submit"] {
   margin-top: 12px;
   padding: 16px 28px;
-  background: linear-gradient(135deg, #43b8c8, #5fad66);
+  background: linear-gradient(135deg, #43b8c8, #5fad66);;
   color: white;
   border: none;
   border-radius: 10px;

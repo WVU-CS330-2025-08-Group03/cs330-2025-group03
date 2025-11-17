@@ -44,12 +44,9 @@ function Login() {
       console.log("Response data:", result);
 
       if (response.ok) {
-        alert(isLogin ? "Login successful! Redirecting to city search..." : "Account created! Redirecting to city search...");
         console.log("Server:", result);
-        // Redirect to city search page after successful login/registration
-        setTimeout(() => {
-          navigate("/cities");
-        }, 1000);
+        // Redirect to city search page immediately after successful login/registration
+        navigate("/cities");
       } else {
         console.error("Login failed:", result);
         setError(result.error || result.message || "Something went wrong.");

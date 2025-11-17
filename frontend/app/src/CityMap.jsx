@@ -35,7 +35,7 @@ function MapUpdater({ cities, selectedCity }) {
   return null;
 }
 
-function CityMap({ cities = [], selectedCity = null, onCityClick }) {
+function CityMap({ cities, selectedCity, selectedMajorCity, onCityClick }) {
   const defaultCenter = [39.8283, -98.5795]; // Center of USA
   const defaultZoom = 4;
 
@@ -86,9 +86,11 @@ function CityMap({ cities = [], selectedCity = null, onCityClick }) {
                 <p style={{ margin: '4px 0' }}>
                   <strong>Median Home:</strong> ${city.median_home_price.toLocaleString()}
                 </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Distance:</strong> {city.distance_from_major_city} miles to {city.nearest_major_city}
-                </p>
+                {city.distance_from_selected_city && selectedMajorCity && (
+                  <p style={{ margin: '4px 0' }}>
+                    <strong>Distance:</strong> {city.distance_from_selected_city.toFixed(1)} miles to {selectedMajorCity}
+                  </p>
+                )}
                 <a 
                   href={`https://www.zillow.com/homes/${encodeURIComponent(city.city_name)}-${city.state_code}_rb/`}
                   target="_blank"

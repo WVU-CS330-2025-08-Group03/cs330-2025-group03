@@ -18,6 +18,7 @@ function CitySearch() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedMajorCity, setSelectedMajorCity] = useState(""); // Store the major city name for distance display
   const [cityDisplayValue, setCityDisplayValue] = useState(""); // For showing "City, ST" format
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +53,7 @@ function CitySearch() {
     // Display as "City, STATE" in the input field
     const displayValue = `${suggestion.city_name}, ${suggestion.state_code}`;
     setCityDisplayValue(displayValue);
+    setSelectedMajorCity(suggestion.city_name); // Store major city name for distance display
     setFilters({ 
       ...filters, 
       city_name: suggestion.city_name, // Store just the city name for backend search
@@ -326,10 +328,12 @@ function CitySearch() {
                         <span className="label">Median Home Price:</span>
                         <span className="value">${city.median_home_price.toLocaleString()}</span>
                       </div>
-                      <div className="detail-item">
-                        <span className="label">Distance to {city.nearest_major_city}:</span>
-                        <span className="value">{city.distance_from_major_city} miles</span>
-                      </div>
+                      {city.distance_from_selected_city && (
+                        <div className="detail-item">
+                          <span className="label">Distance to {selectedMajorCity}:</span>
+                          <span className="value">{city.distance_from_selected_city.toFixed(1)} miles</span>
+                        </div>
+                      )}
                     </div>
                     <div className="city-actions">
                       <button 
@@ -366,6 +370,7 @@ function CitySearch() {
             <CityMap
               cities={cities}
               selectedCity={selectedCity}
+              selectedMajorCity={selectedMajorCity}
               onCityClick={(city) => setSelectedCity(city)}
             />
           </div>

@@ -71,3 +71,21 @@ footer {
   font-size: 0.9rem;
   color: #666;
 }
+
+/* Account button under slogan (grey) */
+.account-slogan-btn { display: none; }
+
+/* Footer account button (grey) */
+.footer-account-btn {
+  display: inline-block;
+  margin-top: 0.75rem;
+  margin-left: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: #e5e7eb;
+  color: #374151;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(55,65,81,0.08);
+}
+.footer-account-btn:hover { background: #d1d5db; }

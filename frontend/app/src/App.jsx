@@ -3,6 +3,7 @@ import "./App.css";
 import { Link, Routes, Route } from 'react-router-dom'
 import Login from "./Login.jsx";
 import CitySearch from "./CitySearch.jsx";
+import Account from "./assets/Account.jsx";
 
 function Home() {
   return (
@@ -10,7 +11,7 @@ function Home() {
       <header className="hero">
         <h1>Find Your Dream Home</h1>
         <p>Discover listings, compare neighborhoods, and connect with agents — all in one place.</p>
-        <Link to="/login" className="cta-button">Start your search</Link> 
+        <Link to="/login" className="cta-button">Start your search</Link>
       </header>
 
       <section className="features">
@@ -30,7 +31,7 @@ function Home() {
        
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
-        
+        <Link to="/Account" className="footer-account-btn">Account</Link>
       </footer>
     </main>
   )
@@ -42,6 +43,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/Account" element={<Account />} />
       <Route path="/cities" element={<CitySearch />} />
     </Routes>
   )

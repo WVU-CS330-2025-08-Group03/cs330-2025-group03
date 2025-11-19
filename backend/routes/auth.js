@@ -27,13 +27,32 @@ const loginLimiter = rateLimit({
 });
 
 // Email configuration (using environment variables)
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// Supports both service-based (gmail, outlook, etc.) and custom SMTP
+const getEmailTransporter = () => {
+  // If custom SMTP is configured, use that
+  if (process.env.EMAIL_HOST && process.env.EMAIL_PORT) {
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT),
+      secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  }
+  
+  // Otherwise use a named service (gmail, outlook, yahoo, etc.)
+  return nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+};
+
+const transporter = getEmailTransporter();
 
 /**
  * Helper function to send verification email

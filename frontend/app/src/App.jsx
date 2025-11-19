@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import { Link, Routes, Route } from 'react-router-dom'
 import Login from "./Login.jsx";
+import VerifyEmail from "./VerifyEmail.jsx";
 import CitySearch from "./CitySearch.jsx";
 import Account from "./assets/Account.jsx";
 
@@ -43,6 +44,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/Account" element={<Account />} />
       <Route path="/cities" element={<CitySearch />} />
     </Routes>

@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import citiesRoutes from './routes/cities.js';
 import { authenticateToken } from './middleware/authMiddleware.js';
@@ -13,6 +14,23 @@ const app = express();
 
 // Log frontend URL configuration
 console.log(`Configured FRONTEND_URL= ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+
+// Rate limiting middleware
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts
+  message: 'Too many login attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 registrations per IP
+  message: 'Too many registration attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Middleware setup
 app.use(cors({

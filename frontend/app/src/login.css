@@ -222,4 +222,87 @@ button[type="submit"]:active {
   }
 }
 
+.email-verification-notice {
+  color: #1e40af;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  padding: 16px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.email-verification-notice h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.email-verification-notice p {
+  margin: 6px 0;
+  color: #1e40af;
+}
+
+.email-verification-notice strong {
+  font-weight: 600;
+}
+
+.resend-button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.resend-button:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.resend-button:active {
+  transform: translateY(0);
+}
+
+.registration-success-notice {
+  color: #065f46;
+  background: #d1f3dd;
+  border: 1px solid #a7f3d0;
+  padding: 16px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.registration-success-notice h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #047857;
+}
+
+.registration-success-notice p {
+  margin: 6px 0;
+  color: #065f46;
+}
+
+.registration-success-notice strong {
+  font-weight: 600;
+}
+
+.registration-success-notice .small-text {
+  font-size: 12px;
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
 

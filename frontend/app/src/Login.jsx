@@ -11,15 +11,45 @@ function Login() {
     password: "",
   });
   const [error, setError] = useState("");
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError(""); // Clear error when user types
   };
 
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+
+    try {
+      const response = await fetch("/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setError("Verification email resent! Check your inbox.");
+        setEmailNotVerified(false);
+      } else {
+        setError(result.error || "Failed to resend verification email.");
+      }
+    } catch (error) {
+      console.error("Resend error:", error);
+      setError("Cannot connect to server. Please try again.");
+    }
+  };
+
   const showForm = (which) => {
     setIsLogin(which === "login");
     setError(""); // Clear error when switching forms
+    setEmailNotVerified(false);
+    setRegistrationSuccess(false);
   };
 
   const handleSubmit = async (e) => {
@@ -45,11 +75,27 @@ function Login() {
 
       if (response.ok) {
         console.log("Server:", result);
-        // Redirect to city search page immediately after successful login/registration
-        navigate("/cities");
+        // Check if it's registration or login
+        if (!isLogin) {
+          // Registration successful
+          setRegistrationSuccess(true);
+          setFormData({ username: "", email: "", password: "" });
+          setError("");
+        } else {
+          // Login successful
+          navigate("/cities");
+        }
       } else {
         console.error("Login failed:", result);
-        setError(result.error || result.message || "Something went wrong.");
+        // Check if email verification is required
+        if (result.code === "EMAIL_NOT_VERIFIED") {
+          setEmailNotVerified(true);
+          setUnverifiedEmail(formData.username); // Use username from form or email
+          setError("");
+        } else {
+          setError(result.error || result.message || "Something went wrong.");
+          setEmailNotVerified(false);
+        }
       }
     } catch (error) {
       console.error("Fetch error:", error);
@@ -76,6 +122,30 @@ function Login() {
         </div>
 
         {error && <div className="error-message">{error}</div>}
+
+        {registrationSuccess && (
+          <div className="registration-success-notice">
+            <h3>✓ Registration Successful!</h3>
+            <p>We've sent a verification email to <strong>{formData.email}</strong></p>
+            <p>Please check your inbox and click the verification link to complete your registration.</p>
+            <p className="small-text">Once verified, you'll be able to log in to your account.</p>
+          </div>
+        )}
+
+        {emailNotVerified && (
+          <div className="email-verification-notice">
+            <h3>Email Verification Required</h3>
+            <p>We sent a verification email to your inbox</p>
+            <p>Please verify your email before logging in.</p>
+            <button
+              type="button"
+              className="resend-button"
+              onClick={handleResendVerification}
+            >
+              Resend Verification Email
+            </button>
+          </div>
+        )}
 
         {isLogin ? (
           <form onSubmit={handleSubmit} className="active">

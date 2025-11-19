@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ChangePasswordForm from "../components/ChangePasswordForm";
 import "./account.css";
 
 export default function Account() {
@@ -48,9 +49,7 @@ export default function Account() {
 
         {/* CARD 3 */}
         <div className="card">
-          <h2>Security</h2>
-          <p className="empty">No security options enabled.</p>
-          <button>Enable Security</button>
+          <ChangePasswordForm />
         </div>
       </div>
     </div>

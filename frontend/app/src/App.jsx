@@ -9,11 +9,12 @@ function Home() {
   return (
     <main className="homepage">
       <header className="hero">
+        <h1>LiveWise</h1>
+        <img src="LiveWiseClear.png" alt="LiveWise Logo" className="logo" width="275" height="250" />
         <h1>Find Your Dream Home</h1>
         <p>Discover listings, compare neighborhoods, and connect with agents — all in one place.</p>
         <Link to="/login" className="cta-button">Start your search</Link>
       </header>
-
       <section className="features">
         <div>
           <h2>🏡 Browse Listings</h2>

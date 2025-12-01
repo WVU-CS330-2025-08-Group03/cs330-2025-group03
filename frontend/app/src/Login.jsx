@@ -60,6 +60,7 @@ function Login() {
   return (
     <div className="container">
       <div className="auth-card">
+        <img src="LiveWiseClear.png" alt="LiveWise Logo" className="logo-login" width="150" height="150" />
         <div className="toggle-buttons">
           <button
             className={isLogin ? "active" : ""}

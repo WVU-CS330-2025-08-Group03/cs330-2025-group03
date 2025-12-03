@@ -56,8 +56,11 @@ router.get('/search', async (req, res) => {
     let majorCityLat = null;
     let majorCityLon = null;
 
-    // Major city filter - find the major city's coordinates first
-    if (city_name) {
+    // Check if this is a distance-based search or exact city search
+    const isDistanceSearch = max_distance && parseInt(max_distance) > 0;
+    
+    // Major city filter - find the major city's coordinates first (only for distance searches)
+    if (city_name && isDistanceSearch) {
       let majorCityQuery = 'SELECT latitude, longitude FROM cities WHERE city_name = ?';
       let majorCityParams = [city_name];
       
@@ -77,12 +80,12 @@ router.get('/search', async (req, res) => {
       }
     }
 
-    // Build query with distance calculation if major city is selected
+    // Build query with distance calculation if major city is selected AND distance is specified
     let query;
     let selectParams = [];
     let whereParams = [];
     
-    if (majorCityLat !== null && majorCityLon !== null) {
+    if (majorCityLat !== null && majorCityLon !== null && isDistanceSearch) {
       // Query with distance calculation
       query = `SELECT DISTINCT cities.id, cities.city_name, cities.state, cities.state_code, 
                cities.latitude, cities.longitude, cities.population, cities.crime_rate,
@@ -103,6 +106,16 @@ router.get('/search', async (req, res) => {
       whereParams.push(city_name);
     } else {
       query = 'SELECT DISTINCT * FROM cities WHERE 1=1';
+      
+      // For exact city search (city name without distance), add city and state filters
+      if (city_name && !isDistanceSearch) {
+        query += ' AND city_name = ?';
+        whereParams.push(city_name);
+        if (state) {
+          query += ' AND state_code = ?';
+          whereParams.push(state.toUpperCase());
+        }
+      }
     }
 
     // Population filter
@@ -133,19 +146,17 @@ router.get('/search', async (req, res) => {
       whereParams.push(parseFloat(min_school_rating));
     }
 
-    // State filter - only apply if NOT doing a distance-based search
+    // State filter - only apply if NOT doing a distance-based search AND NOT already filtered by city_name
     // (distance searches should return cities from all nearby states)
-    if (state && (majorCityLat === null || majorCityLon === null)) {
+    if (state && !isDistanceSearch && !city_name) {
       query += ' AND state_code = ?';
       whereParams.push(state.toUpperCase());
     }
 
     // Add distance filter and ordering
-    if (majorCityLat !== null && majorCityLon !== null) {
-      if (max_distance && parseInt(max_distance) > 0) {
-        query += ' HAVING distance_from_selected_city <= ?';
-        whereParams.push(parseInt(max_distance));
-      }
+    if (majorCityLat !== null && majorCityLon !== null && isDistanceSearch) {
+      query += ' HAVING distance_from_selected_city <= ?';
+      whereParams.push(parseInt(max_distance));
       query += ' ORDER BY distance_from_selected_city ASC LIMIT 500';
     } else {
       query += ' ORDER BY city_name ASC LIMIT 500';
@@ -167,6 +178,13 @@ router.get('/search', async (req, res) => {
       if (suggestions.length > 0) {
         return res.json({ success: true, cities: [], suggestions });
       }
+      // If no suggestions found either, return error message
+      return res.json({ 
+        success: false, 
+        error: `City "${city_name}" not found. Please check the spelling or try a different city.`,
+        cities: [], 
+        suggestions: [] 
+      });
     }
     // --- End AI Logic ---
 

@@ -35,9 +35,18 @@ function MapUpdater({ cities, selectedCity }) {
   return null;
 }
 
-function CityMap({ cities, selectedCity, selectedMajorCity, onCityClick }) {
-  const defaultCenter = [39.8283, -98.5795]; // Center of USA
+function CityMap({ cities, selectedCity, selectedMajorCity, onCityClick, favorites = [], onToggleFavorite, isFavorite }) {
+  // Default view centered on mainland USA (Kansas)
+  const defaultCenter = [39.8283, -98.5795];
   const defaultZoom = 4;
+
+  const handleFavoriteClick = (e, city) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(city);
+    }
+  };
 
   return (
     <MapContainer
@@ -45,6 +54,9 @@ function CityMap({ cities, selectedCity, selectedMajorCity, onCityClick }) {
       zoom={defaultZoom}
       style={{ height: '100%', width: '100%' }}
       scrollWheelZoom={true}
+      minZoom={2}
+      maxZoom={18}
+      worldCopyJump={true}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -53,67 +65,90 @@ function CityMap({ cities, selectedCity, selectedMajorCity, onCityClick }) {
       
       <MapUpdater cities={cities} selectedCity={selectedCity} />
 
-      {cities.map((city) => (
-        <Marker
-          key={city.id}
-          position={[parseFloat(city.latitude), parseFloat(city.longitude)]}
-          eventHandlers={{
-            click: () => {
-              if (onCityClick) {
-                onCityClick(city);
-              }
-            },
-          }}
-        >
-          <Popup>
-            <div style={{ minWidth: '220px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', fontWeight: 'bold' }}>
-                {city.city_name}, {city.state_code}
-              </h3>
-              <div style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Population:</strong> {city.population.toLocaleString()}
-                </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Crime Rate:</strong> {city.crime_rate} per 1000
-                </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Cost of Living:</strong> {city.cost_of_living_index}
-                </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>School Rating:</strong> {city.school_rating}/10
-                </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Median Home:</strong> ${city.median_home_price.toLocaleString()}
-                </p>
-                {city.distance_from_selected_city && selectedMajorCity && (
+      {cities.map((city) => {
+        const isFav = isFavorite ? isFavorite(city.id) : false;
+        return (
+          <Marker
+            key={city.id}
+            position={[parseFloat(city.latitude), parseFloat(city.longitude)]}
+            eventHandlers={{
+              click: () => {
+                if (onCityClick) {
+                  onCityClick(city);
+                }
+              },
+            }}
+          >
+            <Popup>
+              <div style={{ minWidth: '220px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <h3 style={{ margin: '0', fontSize: '1.1rem', fontWeight: 'bold', flex: 1 }}>
+                    {city.city_name}, {city.state_code}
+                  </h3>
+                  <button
+                    onClick={(e) => handleFavoriteClick(e, city)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '1.5rem',
+                      cursor: 'pointer',
+                      padding: '0 0 0 8px',
+                      lineHeight: '1',
+                      transition: 'transform 0.2s',
+                      outline: 'none'
+                    }}
+                    title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    {isFav ? '❤️' : '🤍'}
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
                   <p style={{ margin: '4px 0' }}>
-                    <strong>Distance:</strong> {city.distance_from_selected_city.toFixed(1)} miles to {selectedMajorCity}
+                    <strong>Population:</strong> {city.population.toLocaleString()}
                   </p>
-                )}
-                <a 
-                  href={`https://www.zillow.com/homes/${encodeURIComponent(city.city_name)}-${city.state_code}_rb/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    marginTop: '8px',
-                    padding: '6px 12px',
-                    background: '#0066cc',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  🏠 View Listings
-                </a>
+                  <p style={{ margin: '4px 0' }}>
+                    <strong>Crime Rate:</strong> {city.crime_rate} per 1000
+                  </p>
+                  <p style={{ margin: '4px 0' }}>
+                    <strong>Cost of Living:</strong> {city.cost_of_living_index}
+                  </p>
+                  <p style={{ margin: '4px 0' }}>
+                    <strong>School Rating:</strong> {city.school_rating}/10
+                  </p>
+                  <p style={{ margin: '4px 0' }}>
+                    <strong>Median Home:</strong> ${city.median_home_price.toLocaleString()}
+                  </p>
+                  {city.distance_from_selected_city && selectedMajorCity && (
+                    <p style={{ margin: '4px 0' }}>
+                      <strong>Distance:</strong> {city.distance_from_selected_city.toFixed(1)} miles to {selectedMajorCity}
+                    </p>
+                  )}
+                  <a 
+                    href={`https://www.zillow.com/homes/${encodeURIComponent(city.city_name)}-${city.state_code}_rb/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-block',
+                      marginTop: '8px',
+                      padding: '6px 12px',
+                      background: '#0066cc',
+                      color: 'white',
+                      textDecoration: 'none',
+                      borderRadius: '4px',
+                      fontSize: '0.85rem',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    🏠 View Listings
+                  </a>
+                </div>
               </div>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 }

@@ -88,7 +88,7 @@ router.post('/login', async (req, res) => {
       // Set the token in an HTTP-only cookie
       res.cookie('token', token, { 
         httpOnly: true, 
-        sameSite: 'strict',
+        sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production'
       });
       
@@ -115,13 +115,129 @@ router.get('/test', authenticateToken, (req, res) => {
 });
 
 /**
+ * GET /auth/me
+ * Gets current user info including profile image
+ */
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT id, username, email, profile_image FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    
+    if (rows.length > 0) {
+      res.json({ user: rows[0] });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: 'Failed to fetch user data' });
+  }
+});
+
+/**
+ * PUT /auth/update-profile
+ * Updates user profile information
+ */
+router.put('/update-profile', authenticateToken, async (req, res) => {
+  const { username, email, profile_image } = req.body;
+  const userId = req.user.id;
+
+  if (!username || username.trim().length < 3) {
+    return res.status(400).json({ error: 'Username must be at least 3 characters' });
+  }
+
+  try {
+    // Check if username is taken by another user
+    const [existingUsers] = await pool.execute(
+      'SELECT id FROM users WHERE username = ? AND id != ?',
+      [username, userId]
+    );
+
+    if (existingUsers.length > 0) {
+      return res.status(409).json({ error: 'Username already taken' });
+    }
+
+    // Update user profile
+    await pool.execute(
+      'UPDATE users SET username = ?, email = ?, profile_image = ? WHERE id = ?',
+      [username, email || null, profile_image || null, userId]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Profile updated successfully',
+      user: { id: userId, username, email, profile_image }
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+/**
+ * PUT /auth/change-password
+ * Change user password
+ */
+router.put('/change-password', authenticateToken, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current password and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    // Get user's current password hash
+    const [users] = await pool.execute(
+      'SELECT password_hash FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = users[0];
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await pool.execute(
+      'UPDATE users SET password_hash = ? WHERE id = ?',
+      [hashedPassword, userId]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
+/**
  * POST /auth/logout
  * Clears the authentication cookie
  */
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { 
     httpOnly: true, 
-    sameSite: 'strict' 
+    sameSite: 'lax' 
   });
   res.json({ message: 'Logout successful' });
 });

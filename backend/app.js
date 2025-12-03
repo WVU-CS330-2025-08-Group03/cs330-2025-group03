@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import citiesRoutes from './routes/cities.js';
+import favoritesRoutes from './routes/favorites.js';
 import { authenticateToken } from './middleware/authMiddleware.js';
 
 // Load environment variables
@@ -14,9 +15,9 @@ const app = express();
 // Log frontend URL configuration
 console.log(`Configured FRONTEND_URL= ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 
-// Middleware setup
+// Middleware setup - Allow multiple localhost ports for development
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
   credentials: true
 }));
 app.use(express.json());
@@ -27,6 +28,9 @@ app.use('/auth', authRoutes);
 
 // Mount the cities routes under /api/cities
 app.use('/api/cities', citiesRoutes);
+
+// Mount the favorites routes under /api/favorites
+app.use('/api/favorites', favoritesRoutes);
 
 // Test protected route
 app.get('/api/test', authenticateToken, (req, res) => {

@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CitySearch.css";
 import CityMap from "./CityMap";
 
 function CitySearch() {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [resultsVisible, setResultsVisible] = useState(false);
   const [filters, setFilters] = useState({
     city_name: "",
     min_population: "",
@@ -23,6 +29,102 @@ function CitySearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [aiSuggestions, setAiSuggestions] = useState([]);
+
+  // Fetch current user data on component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('http://localhost:5177/auth/me', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("User data:", data.user);
+          setCurrentUser(data.user);
+          if (data.user.profile_image) {
+            setProfileImage(data.user.profile_image);
+          }
+          // Fetch favorites after getting user
+          fetchFavorites();
+        } else {
+          console.log("User not authenticated");
+          setCurrentUser({ username: "Guest" }); // Fallback for non-authenticated users
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setCurrentUser({ username: "Guest" }); // Fallback for errors
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Fetch user's favorite cities
+  const fetchFavorites = async () => {
+    try {
+      const response = await fetch('http://localhost:5177/api/favorites', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Favorites loaded:", data.favorites);
+        setFavorites(data.favorites || []);
+      } else {
+        console.log("Could not fetch favorites, status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+    }
+  };
+
+  // Check if a city is favorited
+  const isFavorite = (cityId) => {
+    return favorites.some(fav => fav.city_id === cityId);
+  };
+
+  // Toggle favorite status
+  const toggleFavorite = async (city) => {
+    console.log("Toggling favorite for city:", city.city_name);
+    try {
+      if (isFavorite(city.id)) {
+        // Remove from favorites
+        console.log("Removing from favorites");
+        const response = await fetch(`http://localhost:5177/api/favorites/${city.id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (response.ok) {
+          console.log("Removed successfully");
+          setFavorites(favorites.filter(fav => fav.city_id !== city.id));
+        } else {
+          console.error("Failed to remove favorite, status:", response.status);
+        }
+      } else {
+        // Add to favorites
+        console.log("Adding to favorites");
+        const response = await fetch('http://localhost:5177/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ city_id: city.id })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Added successfully:", data.favorite);
+          setFavorites([...favorites, data.favorite]);
+        } else {
+          console.error("Failed to add favorite, status:", response.status);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  // Get user initials for profile icon
+  const getUserInitials = () => {
+    if (!currentUser || !currentUser.username) return "U";
+    return currentUser.username.substring(0, 1).toUpperCase();
+  };
 
   // Autocomplete for city name
   const handleCityNameChange = async (value) => {
@@ -74,11 +176,19 @@ function CitySearch() {
     try {
       // Build query string from filters
       const queryParams = new URLSearchParams();
+      
+      // Check if this is an exact city search (city name without distance or distance is 0)
+      const isExactCitySearch = filtersToUse.city_name && (!filtersToUse.max_distance || filtersToUse.max_distance === "0" || filtersToUse.max_distance === 0);
+      
       Object.keys(filtersToUse).forEach(key => {
         if (filtersToUse[key]) {
+          // For exact city search, skip max_distance parameter
+          if (isExactCitySearch && key === 'max_distance') {
+            return;
+          }
           // When doing distance search, rename 'state' to 'state_code' to identify the major city
           // but not filter results by state (we want all nearby states)
-          if (key === 'state' && filtersToUse.max_distance) {
+          if (key === 'state' && filtersToUse.max_distance && !isExactCitySearch) {
             queryParams.append('state_code', filtersToUse[key]);
           } else {
             queryParams.append(key, filtersToUse[key]);
@@ -93,12 +203,18 @@ function CitySearch() {
         setCities(data.cities);
         setSelectedCity(null); // Clear single city selection to show all results on map
 
+        // Show results if cities were found
+        if (data.cities.length > 0) {
+          setResultsVisible(true);
+        }
+
         // Handle AI-powered suggestions if the search returned none
         if (data.suggestions && data.suggestions.length > 0) {
           setAiSuggestions(data.suggestions);
           setError(`No results for "${filtersToUse.city_name}". Did you mean one of these?`);
         } else if (data.cities.length === 0) {
           setError("No cities found matching your criteria. Try adjusting your filters.");
+          setResultsVisible(false);
         } else {
           // Clear suggestions on a successful search
         }
@@ -150,15 +266,47 @@ function CitySearch() {
   return (
     <div className="city-search-container">
       <header className="search-header">
-        <h1>Find Your Perfect City</h1>
-        <p>Search and filter cities based on your preferences</p>
+        <div className="header-content">
+          <div className="logo-section">
+            <img src="LiveWiseClear.png" alt="LiveWise Logo" className="map-logo" />
+            <div className="logo-title-block">
+              <span className="livewise-title">LiveWise</span>
+              <div>
+                <h1>Find Your Perfect City</h1>
+                <p>Search and filter cities based on your preferences</p>
+              </div>
+            </div>
+          </div>
+          <div className="header-actions">
+            <button 
+              className="back-to-dashboard-btn"
+              onClick={() => navigate('/dashboard')}
+              title="Back to Dashboard"
+            >
+              ← Dashboard
+            </button>
+            <div 
+              className="user-profile-icon"
+              onClick={() => navigate('/account')}
+              title="Account"
+            >
+              {profileImage ? (
+                <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                getUserInitials()
+              )}
+            </div>
+          </div>
+        </div>
       </header>
 
       <div className="search-content">
         {/* Left Sidebar - Filters + Results Combined */}
-        <aside className="left-sidebar">
+        <aside className={`left-sidebar ${!resultsVisible ? 'results-hidden' : ''}`}>
           <div className="filters-section">
-            <h2>Find Your City</h2>
+            <div className="filters-header">
+              <h2>Find Your City</h2>
+            </div>
             <form onSubmit={searchCities}>
             <div className="filter-group">
               <label>Major City (Optional)</label>
@@ -283,6 +431,19 @@ function CitySearch() {
 
           {/* Results Section - Below Filters in Same Sidebar */}
           <div className="results-section">
+            {cities.length > 0 && (
+              <div className="results-header">
+                <button 
+                  type="button"
+                  className="toggle-results-btn"
+                  onClick={() => setResultsVisible(!resultsVisible)}
+                >
+                  {resultsVisible ? '▲ Hide Results' : '▼ Show Results'}
+                </button>
+              </div>
+            )}
+            {resultsVisible && (
+            <div className="results-content">
             {error && <div className="error-message">{error}</div>}
             
             {aiSuggestions.length > 0 && (
@@ -337,6 +498,13 @@ function CitySearch() {
                     </div>
                     <div className="city-actions">
                       <button 
+                        className={`favorite-btn ${isFavorite(city.id) ? 'favorited' : ''}`}
+                        onClick={() => toggleFavorite(city)}
+                        title={isFavorite(city.id) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        {isFavorite(city.id) ? '❤️' : '🤍'}
+                      </button>
+                      <button 
                         className="view-map-btn" 
                         onClick={() => viewCityOnMap(city)}
                       >
@@ -361,6 +529,8 @@ function CitySearch() {
                 </div>
               )
             )}
+            </div>
+            )}
           </div>
         </aside>
 
@@ -372,6 +542,9 @@ function CitySearch() {
               selectedCity={selectedCity}
               selectedMajorCity={selectedMajorCity}
               onCityClick={(city) => setSelectedCity(city)}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              isFavorite={isFavorite}
             />
           </div>
         </div>

@@ -2,8 +2,10 @@ import React from "react";
 import "./App.css";
 import { Link, Routes, Route } from 'react-router-dom'
 import Login from "./Login.jsx";
+import Dashboard from "./Dashboard.jsx";
 import CitySearch from "./CitySearch.jsx";
-import Account from "./assets/Account.jsx";
+import Account from "./Account.jsx";
+import Favorites from "./Favorites.jsx";
 
 function Home() {
   return (
@@ -32,9 +34,9 @@ function Home() {
        
       <footer>
         <p>© 2025 LiveWise — Your path to homeownership made simple.</p>
-        <Link to="/Account" className="footer-account-btn">Account</Link>
       </footer>
     </main>
+
   )
 }
 
@@ -44,8 +46,10 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/Account" element={<Account />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/account" element={<Account />} />
       <Route path="/cities" element={<CitySearch />} />
+      <Route path="/favorites" element={<Favorites />} />
     </Routes>
   )
 }

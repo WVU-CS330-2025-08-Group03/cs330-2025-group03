@@ -45,8 +45,8 @@ function Login() {
 
       if (response.ok) {
         console.log("Server:", result);
-        // Redirect to city search page immediately after successful login/registration
-        navigate("/cities");
+        // Redirect to dashboard immediately after successful login/registration
+        navigate("/dashboard");
       } else {
         console.error("Login failed:", result);
         setError(result.error || result.message || "Something went wrong.");

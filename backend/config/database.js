@@ -1,15 +1,15 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 import fs from 'fs';
 
 // Set up __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from the `backend` directory
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // Define the SSL certificate path
 const sslCertPath = join(__dirname, 'DigiCertGlobalRootG2.crt.pem');

@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import { API_BASE_URL } from './config';
+
+// State name to state code mapping
+const STATE_CODES = {
+  'California': 'CA',
+  'Kansas': 'KS',
+  'Texas': 'TX',
+  'Vermont': 'VT',
+  'Idaho': 'ID',
+  'Arizona': 'AZ',
+  'North Dakota': 'ND'
+};
 
 const TOP_US_CITIES = [
   {
@@ -9,7 +21,7 @@ const TOP_US_CITIES = [
     state: "California",
     rank: 1,
     matchScore: 98,
-    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80",
+    image: "https://www.fremont.gov/home/showpublishedimage/4388/637860624781630000",
     tags: ["High Income", "Education", "Safety"],
     highlights: "High median family income, excellent education and childcare, low poverty, strong health metrics",
     costOfLiving: "$3,200"
@@ -20,7 +32,7 @@ const TOP_US_CITIES = [
     state: "Kansas",
     rank: 2,
     matchScore: 95,
-    image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.squarespace-cdn.com/content/v1/65f1f3ec14981e66377be4e7/83dc449c-4e18-4988-9db7-4a8d1709f5ff/41061140_10156689978955126_8074015054455898112_o.jpg",
     tags: ["Affordable", "Family-Friendly", "Safe"],
     highlights: "Very affordable relative to income, low poverty, strong socioeconomic stability",
     costOfLiving: "$1,800"
@@ -31,7 +43,7 @@ const TOP_US_CITIES = [
     state: "Texas",
     rank: 3,
     matchScore: 92,
-    image: "https://images.unsplash.com/photo-1531218536974-5ea8da2024f7?auto=format&fit=crop&w=800&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Legacy_West.jpg/1200px-Legacy_West.jpg",
     tags: ["Affordable", "Amenities", "Quality"],
     highlights: "Good mix of affordability, family-friendly amenities, and reasonable safety metrics",
     costOfLiving: "$2,100"
@@ -42,7 +54,7 @@ const TOP_US_CITIES = [
     state: "California",
     rank: 4,
     matchScore: 89,
-    image: "https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?auto=format&fit=crop&w=800&q=80",
+    image: "https://www.redfin.com/blog/wp-content/uploads/2023/12/GettyImages-185099098.jpg",
     tags: ["Top Schools", "Safety", "Quality"],
     highlights: "Highly rated public services, excellent schools, clean infrastructure, strong community",
     costOfLiving: "$3,400"
@@ -53,7 +65,7 @@ const TOP_US_CITIES = [
     state: "Vermont",
     rank: 5,
     matchScore: 87,
-    image: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80",
+    image: "https://www.southburlingtonvt.gov/ImageRepository/Document?documentID=1607",
     tags: ["Small City", "Education", "Environment"],
     highlights: "Strong safety and education, quality of life, clean environment, slower-paced living",
     costOfLiving: "$2,300"
@@ -64,7 +76,7 @@ const TOP_US_CITIES = [
     state: "Idaho",
     rank: 6,
     matchScore: 85,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW_pJjHPPc19wWiWHPGRCXXcDrkwYLbrpNkg&s",
     tags: ["Affordable", "Outdoors", "Community"],
     highlights: "More affordable, access to outdoor space, family-oriented community environment",
     costOfLiving: "$1,900"
@@ -75,7 +87,7 @@ const TOP_US_CITIES = [
     state: "Arizona",
     rank: 7,
     matchScore: 83,
-    image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=80",
+    image: "https://www.gilbertaz.gov/home/showpublishedimage/24101/638089672395830000",
     tags: ["Family", "Safety", "Amenities"],
     highlights: "Good balance of safety, family amenities, and community infrastructure",
     costOfLiving: "$2,000"
@@ -86,7 +98,7 @@ const TOP_US_CITIES = [
     state: "North Dakota",
     rank: 8,
     matchScore: 80,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6l1IauPk7E8gl0TWE6lM-7pc6h4VU9e84UQ&s",
     tags: ["Hidden Gem", "Low Crime", "Affordable"],
     highlights: "Low crime, manageable housing expenses, solid community services",
     costOfLiving: "$1,600"
@@ -105,7 +117,7 @@ export default function Dashboard() {
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://localhost:5177/auth/me', {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
           credentials: 'include'
         });
         if (response.ok) {
@@ -131,7 +143,7 @@ export default function Dashboard() {
   // Fetch user's favorite cities
   const fetchFavorites = async () => {
     try {
-      const response = await fetch('http://localhost:5177/api/favorites', {
+      const response = await fetch(`${API_BASE_URL}/api/favorites`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -145,7 +157,7 @@ export default function Dashboard() {
 
   const removeFavorite = async (cityId) => {
     try {
-      const response = await fetch(`http://localhost:5177/api/favorites/${cityId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/favorites/${cityId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -288,7 +300,7 @@ export default function Dashboard() {
                     </div>
                     <button 
                       className="view-details-btn"
-                      onClick={() => navigate('/cities')}
+                      onClick={() => navigate(`/cities?city=${encodeURIComponent(city.name)}, ${encodeURIComponent(STATE_CODES[city.state] || city.state)}`)}
                     >
                       View Details →
                     </button>
@@ -364,7 +376,7 @@ export default function Dashboard() {
                           </div>
                           <button 
                             className="view-details-btn"
-                            onClick={() => navigate('/cities')}
+                            onClick={() => navigate(`/cities?city=${encodeURIComponent(fav.city_name)}, ${encodeURIComponent(fav.state_code)}`)}
                           >
                             View on Map →
                           </button>

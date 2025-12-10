@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./CitySearch.css";
 import CityMap from "./CityMap";
+import { API_BASE_URL } from "./config";
 
 function CitySearch() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentUser, setCurrentUser] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [favorites, setFavorites] = useState([]);
@@ -34,7 +36,7 @@ function CitySearch() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://localhost:5177/auth/me', {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
           credentials: 'include'
         });
         if (response.ok) {
@@ -58,10 +60,37 @@ function CitySearch() {
     fetchUser();
   }, []);
 
+  // Handle URL parameters for city search
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const cityParam = searchParams.get('city');
+    
+    if (cityParam) {
+      // Parse city name and state if present (format: "City, State")
+      const parts = cityParam.split(',').map(p => p.trim());
+      const cityName = parts[0];
+      const stateCode = parts[1] || '';
+      
+      // Set the city name in filters and display value
+      setCityDisplayValue(cityParam);
+      setFilters(prev => ({ 
+        ...prev, 
+        city_name: cityName,
+        state: stateCode,
+        max_distance: '' // Clear distance to search for exact city
+      }));
+      
+      // Trigger search automatically after a short delay to ensure state is updated
+      setTimeout(() => {
+        handleSearchFromUrl(cityName, stateCode);
+      }, 100);
+    }
+  }, [location.search]);
+
   // Fetch user's favorite cities
   const fetchFavorites = async () => {
     try {
-      const response = await fetch('http://localhost:5177/api/favorites', {
+      const response = await fetch(`${API_BASE_URL}/api/favorites`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -73,6 +102,58 @@ function CitySearch() {
       }
     } catch (error) {
       console.error("Error fetching favorites:", error);
+    }
+  };
+
+  // Handle search from URL parameters
+  const handleSearchFromUrl = async (cityName, stateCode = '') => {
+    console.log('=== handleSearchFromUrl called ===');
+    console.log('cityName:', cityName);
+    console.log('stateCode:', stateCode);
+    setLoading(true);
+    setError("");
+    
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append('city_name', cityName);
+      if (stateCode) {
+        queryParams.append('state', stateCode);
+      }
+
+      const apiUrl = `/api/cities/search?${queryParams.toString()}`;
+      console.log('Fetching:', apiUrl);
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      console.log('Response status:', response.status);
+      console.log('Search results:', data);
+      
+      if (data.success) {
+        setCities(data.cities);
+        setSelectedCity(null); // Show all cities on map, not just one
+        setSelectedMajorCity(cityName); // Set for distance display if needed
+
+        if (data.cities.length > 0) {
+          setResultsVisible(true); // Show the results panel
+          console.log('Results visible set to true, cities found:', data.cities.length);
+        } else if (data.suggestions && data.suggestions.length > 0) {
+          setAiSuggestions(data.suggestions);
+          setError(`No results for "${cityName}". Did you mean one of these?`);
+          setResultsVisible(false);
+        } else {
+          setError("City not found. Try adjusting your search.");
+          setResultsVisible(false);
+        }
+      } else {
+        setError(data.error || "Failed to search cities");
+        setResultsVisible(false);
+      }
+    } catch (error) {
+      console.error("Error searching cities:", error);
+      setError("Error connecting to server. Please try again.");
+      setResultsVisible(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,7 +169,7 @@ function CitySearch() {
       if (isFavorite(city.id)) {
         // Remove from favorites
         console.log("Removing from favorites");
-        const response = await fetch(`http://localhost:5177/api/favorites/${city.id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/favorites/${city.id}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -101,7 +182,7 @@ function CitySearch() {
       } else {
         // Add to favorites
         console.log("Adding to favorites");
-        const response = await fetch('http://localhost:5177/api/favorites', {
+        const response = await fetch(`${API_BASE_URL}/api/favorites`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',

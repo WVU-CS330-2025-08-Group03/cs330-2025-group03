@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./account.css";
+import { API_BASE_URL } from "./config";
 
 export default function Account() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function Account() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://localhost:5177/auth/me', {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
           credentials: 'include'
         });
         if (response.ok) {
@@ -48,7 +49,7 @@ export default function Account() {
 
   const fetchFavorites = async () => {
     try {
-      const response = await fetch('http://localhost:5177/api/favorites', {
+      const response = await fetch(`${API_BASE_URL}/api/favorites`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -62,7 +63,7 @@ export default function Account() {
 
   const removeFavorite = async (cityId) => {
     try {
-      const response = await fetch(`http://localhost:5177/api/favorites/${cityId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/favorites/${cityId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -89,7 +90,7 @@ export default function Account() {
         
         // Save image immediately
         try {
-          const response = await fetch('http://localhost:5177/auth/update-profile', {
+          const response = await fetch(`${API_BASE_URL}/auth/update-profile`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -122,7 +123,7 @@ export default function Account() {
     setUpdateError('');
 
     try {
-      const response = await fetch('http://localhost:5177/auth/update-profile', {
+      const response = await fetch(`${API_BASE_URL}/auth/update-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -165,8 +166,8 @@ export default function Account() {
     }
 
     try {
-      const response = await fetch('http://localhost:5177/auth/change-password', {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
@@ -193,7 +194,7 @@ export default function Account() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5177/auth/logout', {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -376,24 +377,6 @@ export default function Account() {
                 <button type="submit" className="save-btn">Update Password</button>
               </form>
             )}
-
-            <div className="setting-item">
-              <div className="setting-info">
-                <strong>Notifications</strong>
-                <small>Manage email notifications</small>
-              </div>
-              <label className="toggle-switch">
-                <input type="checkbox" defaultChecked />
-                <span className="toggle-slider"></span>
-              </label>
-            </div>
-            <div className="setting-item">
-              <div className="setting-info">
-                <strong>Privacy</strong>
-                <small>Control your data sharing</small>
-              </div>
-              <button className="setting-btn">Manage</button>
-            </div>
           </div>
 
           <div className="logout-section">

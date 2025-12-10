@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+import { API_BASE_URL } from "./config";
 
 function Login() {
   const navigate = useNavigate();
@@ -26,8 +27,8 @@ function Login() {
     e.preventDefault();
     setError(""); // Clear previous errors
     const { username, email, password } = formData;
-    // Backend routes are under /auth; Vite proxy will forward to the backend port during dev
-    const endpoint = isLogin ? "/auth/login" : "/auth/register";
+    // Backend routes are under /auth
+    const endpoint = isLogin ? `${API_BASE_URL}/auth/login` : `${API_BASE_URL}/auth/register`;
 
     try {
       const response = await fetch(endpoint, {

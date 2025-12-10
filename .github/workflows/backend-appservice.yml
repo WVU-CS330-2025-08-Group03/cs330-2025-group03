@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - xPostForecast-api
+name: Build and deploy Node.js app to Azure Web App - LiveWise-api
 
 on:
   push:
@@ -47,7 +47,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: "xPostForecast-api"
+          app-name: "livewise-api"
           slot-name: "Production"
           package: backend
           publish-profile: ${{ secrets.APP_SERVICE_PUBLISH_PROFILE }}

@@ -17,9 +17,16 @@ console.log(`NODE_ENV= ${process.env.NODE_ENV || 'development'}`);
 console.log(`Configured FRONTEND_URL= ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 
 // Middleware setup - CORS configuration
+// Allow production frontend and localhost for development
 const allowedOrigins = process.env.FRONTEND_URL 
-  ? [process.env.FRONTEND_URL]
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'];
+  ? [process.env.FRONTEND_URL, 'https://orange-ground-0a8ff800f.3.azurestaticapps.net']
+  : [
+      'https://orange-ground-0a8ff800f.3.azurestaticapps.net',
+      'http://localhost:5173', 
+      'http://localhost:5174', 
+      'http://localhost:5175', 
+      'http://localhost:5176'
+    ];
 
 app.use(cors({
   origin: allowedOrigins,

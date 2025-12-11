@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import pool from '../config/database.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GoogleGenAI } from '@google/genai';
+import OpenAI from 'openai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,28 +10,35 @@ const __dirname = path.dirname(__filename);
 // Explicitly point to the .env file in the `backend` directory
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-// This script now uses the Gemini API to fetch and populate city data.
+// This script now uses the OpenAI API to fetch and populate city data.
 // It also ensures that the featured cities from the "Discover" page are present in the database.
 
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.OPENAI_API_KEY;
 const SKIP_API = process.env.SKIP_GEMINI_API === 'true'; // Add this flag
 const USE_STATIC_PHILLY_SUBURBS = process.env.USE_STATIC_PHILLY_SUBURBS === 'true';
 
 if (!API_KEY && !SKIP_API) {
-  console.error('Missing GEMINI_API_KEY environment variable.');
+  console.error('Missing OPENAI_API_KEY environment variable.');
   process.exit(1);
 }
 
-const majorCities = ['Philadelphia'];
+const majorCities = [
+  'New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix',
+  'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose',
+  'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Charlotte',
+  'San Francisco', 'Indianapolis', 'Seattle', 'Denver', 'Boston',
+  'Nashville', 'Portland', 'Las Vegas', 'Detroit', 'Memphis',
+  'Baltimore', 'Milwaukee', 'Albuquerque', 'Tucson', 'Fresno',
+  'Sacramento', 'Kansas City', 'Mesa', 'Atlanta', 'Omaha',
+  'Colorado Springs', 'Raleigh', 'Miami', 'Minneapolis', 'Tampa'
+];
 
-const prompt = `You are a data assistant. Produce ONLY a valid JSON object with NO explanation, NO markdown, NO extra text.
+function generatePromptForCity(cityName) {
+  return `You are a data assistant. Produce ONLY a valid JSON object with NO explanation, NO markdown, NO extra text.
 
 Output format (MUST be valid JSON):
 {
-  "discoverCities": [],
-  "suburbs": {
-    "Philadelphia": [...]
-  }
+  "suburbs": [...]
 }
 
 For each suburb include: city_name, state, state_code, latitude, longitude, population, crime_rate, cost_of_living_index, distance_from_major_city, nearest_major_city, school_rating, median_home_price.
@@ -42,36 +49,40 @@ Rules:
 - NO newlines inside strings
 - NO trailing commas
 - ALL numbers must be numeric (not strings)
-- suburbs["Philadelphia"]: array of 5-8 suburbs near Philadelphia
-- Each suburb: nearest_major_city = "Philadelphia", distance_from_major_city = integer miles
+- suburbs: array of 8-12 real suburbs/cities near ${cityName}
+- Each suburb: nearest_major_city = "${cityName}", distance_from_major_city = integer miles
+- Include the major city ${cityName} itself with distance_from_major_city = 0
 
 Return ONLY valid JSON. START with { and END with }`;
+}
 
 // Helper to detect and filter out invalid names like "Philadelphia_suburb" or "Anytown Suburb"
 function isInvalidCityName(cityName) {
   return typeof cityName === 'string' && /suburb/i.test(cityName.trim());
 }
 
-async function callLLM() {
-  console.log('Sending prompt to LLM...');
-  // Set initial wait to 10s
-  await new Promise(resolve => setTimeout(resolve, 10000));
+async function callLLMForCity(cityName) {
+  console.log(`Generating cities for ${cityName}...`);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limit delay
 
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const client = new OpenAI({ apiKey: API_KEY });
+  const prompt = generatePromptForCity(cityName);
 
-  const maxRetries = 3;
+  const maxRetries = 2;
   let attempt = 0;
 
   while (attempt < maxRetries) {
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
-        contents: prompt,
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'You are a data assistant that outputs only valid JSON.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7
       });
 
-      const rawText = response.text;
-      console.log('Raw response length:', rawText.length);
-
+      const rawText = response.choices[0].message.content;
       const firstBrace = rawText.indexOf('{');
       const lastBrace = rawText.lastIndexOf('}');
       if (firstBrace === -1 || lastBrace === -1) {
@@ -82,31 +93,21 @@ async function callLLM() {
       return JSON.parse(jsonText);
     } catch (err) {
       attempt++;
-      // If rate limited, honor suggested delay or fallback to static suburbs after retries
       if (err.status === 429 && attempt < maxRetries) {
-        let waitTime = 10000; // 10s minimum
-        const retryMatch = err.message?.match(/retry in ([\d.]+)s/i);
-        if (retryMatch) {
-          const suggestedWait = Math.ceil(parseFloat(retryMatch[1]) * 1000);
-          waitTime = Math.max(waitTime, suggestedWait + 2000); // add 2s buffer
-        }
-        console.log(`Rate limit hit. Waiting ${waitTime / 1000} seconds before retry... (Attempt ${attempt}/${maxRetries})`);
+        let waitTime = 15000;
+        console.log(`Rate limit. Waiting ${waitTime / 1000}s... (Attempt ${attempt}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
         continue;
       }
 
-      console.error('LLM API error:', err);
-      // On persistent failure or final attempt, fallback to static suburbs
+      console.error(`Error for ${cityName}:`, err.message || err);
       if (attempt >= maxRetries) {
-        console.warn('Max retries reached or API error. Falling back to static Philadelphia suburbs.');
-        return { discoverCities: [], suburbs: { Philadelphia: staticPhillySuburbs } };
+        return { suburbs: [] }; // Skip this city
       }
-      throw new Error('Failed to call LLM: ' + err.message);
     }
   }
 
-  // Should not reach here due to fallback
-  return { discoverCities: [], suburbs: { Philadelphia: staticPhillySuburbs } };
+  return { suburbs: [] };
 }
 
 async function upsertCity(city) {
@@ -344,26 +345,33 @@ async function listSuburbNamedCities() {
         }
       }
     } else {
-      console.log('\n--- Step 2: Fetching and upserting suburbs of Philadelphia from Gemini API ---');
-      const parsed = await callLLM();
-      console.log('Parsed JSON OK. Beginning DB upserts...');
+      console.log('\n--- Step 2: Fetching and upserting cities from Gemini API for multiple metros ---');
       
-      const phillySuburbs = (parsed.suburbs?.Philadelphia || []).filter(c => {
-        if (!c || !c.city_name) return false;
-        return !isInvalidCityName(c.city_name);
-      });
+      for (let i = 0; i < majorCities.length; i++) {
+        const cityName = majorCities[i];
+        console.log(`\n[${i+1}/${majorCities.length}] Processing ${cityName}...`);
+        
+        const parsed = await callLLMForCity(cityName);
+        const suburbs = (parsed.suburbs || []).filter(c => {
+          if (!c || !c.city_name) return false;
+          return !isInvalidCityName(c.city_name);
+        });
 
-      if (phillySuburbs.length === 0) {
-        console.log('No Philadelphia suburbs returned from API or fallback.');
-      }
-
-      for (const city of phillySuburbs) {
-        try {
-          const res = await upsertCity(city);
-          if (res.action === 'inserted') inserted++; else updated++;
-        } catch (err) {
-          console.error('Failed upsert for', city?.city_name || '<unknown>', city?.state_code || city?.state || '<unknown>', err.message);
+        if (suburbs.length === 0) {
+          console.log(`  No cities returned for ${cityName}`);
+          continue;
         }
+
+        for (const city of suburbs) {
+          try {
+            const res = await upsertCity(city);
+            if (res.action === 'inserted') inserted++; else updated++;
+          } catch (err) {
+            console.error(`  Failed: ${city?.city_name || '<unknown>'}`, err.message);
+          }
+        }
+        
+        console.log(`  ${cityName} done: +${suburbs.length} cities`);
       }
     }
 

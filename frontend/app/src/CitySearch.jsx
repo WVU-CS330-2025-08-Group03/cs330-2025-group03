@@ -217,7 +217,7 @@ function CitySearch() {
     
     if (value.length >= 1) {
       try {
-        const response = await fetch(`/api/cities/autocomplete?term=${encodeURIComponent(cityNameOnly)}`);
+        const response = await fetch(`${API_BASE_URL}/api/cities/autocomplete?term=${encodeURIComponent(cityNameOnly)}`);
         const data = await response.json();
         if (data.success) {
           setSuggestions(data.suggestions);
@@ -277,7 +277,7 @@ function CitySearch() {
         }
       });
 
-      const response = await fetch(`/api/cities/search?${queryParams.toString()}`);
+      const response = await fetch(`${API_BASE_URL}/api/cities/search?${queryParams.toString()}`);
       const data = await response.json();
       
       if (data.success) {

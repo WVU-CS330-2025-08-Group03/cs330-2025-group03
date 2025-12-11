@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@14d6a68db6e13645b1678067f52bf19e266692fa # v3.0.2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: "livewise-api"
           slot-name: "Production"

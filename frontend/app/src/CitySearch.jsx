@@ -120,7 +120,7 @@ function CitySearch() {
         queryParams.append('state', stateCode);
       }
 
-      const apiUrl = `/api/cities/search?${queryParams.toString()}`;
+      const apiUrl = `${API_BASE_URL}/api/cities/search?${queryParams.toString()}`;
       console.log('Fetching:', apiUrl);
       const response = await fetch(apiUrl);
       const data = await response.json();

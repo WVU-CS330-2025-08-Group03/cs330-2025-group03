@@ -22,18 +22,30 @@ if (!API_KEY && !SKIP_API) {
   process.exit(1);
 }
 
-const majorCities = [
-  'New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix',
-  'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose',
+// Cities that need extensive suburbs (20-25 cities each)
+const largeMajorCities = [
+  'Philadelphia', 'Boston', 'San Francisco', 'San Jose', 'Seattle',
+  'Los Angeles', 'Chicago', 'Phoenix', 'Pittsburgh', 'Cincinnati',
+  'Denver', 'Atlanta', 'Washington DC', 'New York'
+];
+
+// Cities that need moderate suburbs (8-12 cities each)
+const moderateMajorCities = [
+  'Houston', 'San Antonio', 'San Diego', 'Dallas',
   'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Charlotte',
-  'San Francisco', 'Indianapolis', 'Seattle', 'Denver', 'Boston',
-  'Nashville', 'Portland', 'Las Vegas', 'Detroit', 'Memphis',
+  'Indianapolis', 'Nashville', 'Portland', 'Las Vegas', 'Detroit', 'Memphis',
   'Baltimore', 'Milwaukee', 'Albuquerque', 'Tucson', 'Fresno',
-  'Sacramento', 'Kansas City', 'Mesa', 'Atlanta', 'Omaha',
+  'Sacramento', 'Kansas City', 'Mesa', 'Omaha',
   'Colorado Springs', 'Raleigh', 'Miami', 'Minneapolis', 'Tampa'
 ];
 
-function generatePromptForCity(cityName) {
+// West Virginia cities
+const westVirginiaCities = [
+  'Morgantown', 'Huntington', 'Fairmont', 'Clarksburg',
+  'Martinsburg', 'Charles Town', 'Shepherdstown', 'Harpers Ferry'
+];
+
+function generatePromptForCity(cityName, count = 10) {
   return `You are a data assistant. Produce ONLY a valid JSON object with NO explanation, NO markdown, NO extra text.
 
 Output format (MUST be valid JSON):
@@ -49,7 +61,7 @@ Rules:
 - NO newlines inside strings
 - NO trailing commas
 - ALL numbers must be numeric (not strings)
-- suburbs: array of 8-12 real suburbs/cities near ${cityName}
+- suburbs: array of ${count} real suburbs/cities near ${cityName}
 - Each suburb: nearest_major_city = "${cityName}", distance_from_major_city = integer miles
 - Include the major city ${cityName} itself with distance_from_major_city = 0
 
@@ -61,12 +73,12 @@ function isInvalidCityName(cityName) {
   return typeof cityName === 'string' && /suburb/i.test(cityName.trim());
 }
 
-async function callLLMForCity(cityName) {
-  console.log(`Generating cities for ${cityName}...`);
+async function callLLMForCity(cityName, count = 10) {
+  console.log(`Generating ${count} cities for ${cityName}...`);
   await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limit delay
 
   const client = new OpenAI({ apiKey: API_KEY });
-  const prompt = generatePromptForCity(cityName);
+  const prompt = generatePromptForCity(cityName, count);
 
   const maxRetries = 2;
   let attempt = 0;
@@ -345,13 +357,73 @@ async function listSuburbNamedCities() {
         }
       }
     } else {
-      console.log('\n--- Step 2: Fetching and upserting cities from Gemini API for multiple metros ---');
+      console.log('\n--- Step 2: Fetching cities from OpenAI API for multiple metros ---');
       
-      for (let i = 0; i < majorCities.length; i++) {
-        const cityName = majorCities[i];
-        console.log(`\n[${i+1}/${majorCities.length}] Processing ${cityName}...`);
+      // Process large metro areas (20-25 cities each)
+      console.log('\n=== Processing Large Metro Areas (20-25 cities each) ===');
+      for (let i = 0; i < largeMajorCities.length; i++) {
+        const cityName = largeMajorCities[i];
+        console.log(`\n[${i+1}/${largeMajorCities.length}] Processing ${cityName}...`);
         
-        const parsed = await callLLMForCity(cityName);
+        const parsed = await callLLMForCity(cityName, 22);
+        const suburbs = (parsed.suburbs || []).filter(c => {
+          if (!c || !c.city_name) return false;
+          return !isInvalidCityName(c.city_name);
+        });
+
+        if (suburbs.length === 0) {
+          console.log(`  No cities returned for ${cityName}`);
+          continue;
+        }
+
+        for (const city of suburbs) {
+          try {
+            const res = await upsertCity(city);
+            if (res.action === 'inserted') inserted++; else updated++;
+          } catch (err) {
+            console.error(`  Failed: ${city?.city_name || '<unknown>'}`, err.message);
+          }
+        }
+        
+        console.log(`  ${cityName} done: +${suburbs.length} cities`);
+      }
+
+      // Process moderate metro areas (8-12 cities each)
+      console.log('\n=== Processing Moderate Metro Areas (8-12 cities each) ===');
+      for (let i = 0; i < moderateMajorCities.length; i++) {
+        const cityName = moderateMajorCities[i];
+        console.log(`\n[${i+1}/${moderateMajorCities.length}] Processing ${cityName}...`);
+        
+        const parsed = await callLLMForCity(cityName, 10);
+        const suburbs = (parsed.suburbs || []).filter(c => {
+          if (!c || !c.city_name) return false;
+          return !isInvalidCityName(c.city_name);
+        });
+
+        if (suburbs.length === 0) {
+          console.log(`  No cities returned for ${cityName}`);
+          continue;
+        }
+
+        for (const city of suburbs) {
+          try {
+            const res = await upsertCity(city);
+            if (res.action === 'inserted') inserted++; else updated++;
+          } catch (err) {
+            console.error(`  Failed: ${city?.city_name || '<unknown>'}`, err.message);
+          }
+        }
+        
+        console.log(`  ${cityName} done: +${suburbs.length} cities`);
+      }
+
+      // Process West Virginia cities
+      console.log('\n=== Processing West Virginia Cities ===');
+      for (let i = 0; i < westVirginiaCities.length; i++) {
+        const cityName = westVirginiaCities[i];
+        console.log(`\n[${i+1}/${westVirginiaCities.length}] Processing ${cityName}, WV...`);
+        
+        const parsed = await callLLMForCity(cityName, 5);
         const suburbs = (parsed.suburbs || []).filter(c => {
           if (!c || !c.city_name) return false;
           return !isInvalidCityName(c.city_name);

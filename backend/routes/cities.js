@@ -1,9 +1,6 @@
 import express from 'express';
 import pool from '../config/database.js';
 
-// --- AI Suggestion Helper ---
-// Levenshtein distance function to find similarity between two strings.
-// This helps find typos (e.g., "Austn" vs "Austin").
 const levenshtein = (s1, s2) => {
   if (s1.length < s2.length) return levenshtein(s2, s1);
   if (s2.length === 0) return s1.length;

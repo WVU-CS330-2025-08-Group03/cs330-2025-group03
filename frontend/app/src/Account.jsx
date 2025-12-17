@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./account.css";
+import "./Account.css";
 import { API_BASE_URL } from "./config";
 
 export default function Account() {

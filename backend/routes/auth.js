@@ -85,12 +85,16 @@ router.post('/login', async (req, res) => {
         { expiresIn: '1h' }
       );
       
-      // Set the token in an HTTP-only cookie
-      res.cookie('token', token, { 
-        httpOnly: true, 
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production'
-      });
+      // Set the token in an HTTP-only cookie.
+      // For cross-site frontend (frontend on a different origin), browsers
+      // require `sameSite: 'none'` and `secure: true` so the cookie is sent.
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      };
+
+      res.cookie('token', token, cookieOptions);
       
       return res.status(200).json({ message: 'Login successful' });
     } else {
@@ -235,10 +239,14 @@ router.put('/change-password', authenticateToken, async (req, res) => {
  * Clears the authentication cookie
  */
 router.post('/logout', (req, res) => {
-  res.clearCookie('token', { 
-    httpOnly: true, 
-    sameSite: 'lax' 
-  });
+  // Clear the cookie using the same cookie attributes used when setting it.
+  const clearOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  };
+
+  res.clearCookie('token', clearOptions);
   res.json({ message: 'Logout successful' });
 });
 

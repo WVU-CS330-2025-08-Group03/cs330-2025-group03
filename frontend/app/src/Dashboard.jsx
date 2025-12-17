@@ -11,7 +11,8 @@ const STATE_CODES = {
   'Vermont': 'VT',
   'Idaho': 'ID',
   'Arizona': 'AZ',
-  'North Dakota': 'ND'
+  'North Dakota': 'ND',
+  'Pennsylvania': 'PA'
 };
 
 const TOP_US_CITIES = [
@@ -102,6 +103,28 @@ const TOP_US_CITIES = [
     tags: ["Hidden Gem", "Low Crime", "Affordable"],
     highlights: "Low crime, manageable housing expenses, solid community services",
     costOfLiving: "$1,600"
+  },
+  {
+    id: 9,
+    name: "Pittsburgh",
+    state: "Pennsylvania",
+    rank: 9,
+    matchScore: 88,
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Downtown_Pittsburgh_skyline.jpg/1200px-Downtown_Pittsburgh_skyline.jpg",
+    tags: ["Affordable", "Culture", "Tech Hub"],
+    highlights: "Affordable housing, strong tech sector growth, rich cultural institutions, excellent universities",
+    costOfLiving: "$1,950"
+  },
+  {
+    id: 10,
+    name: "Philadelphia",
+    state: "Pennsylvania",
+    rank: 10,
+    matchScore: 86,
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Philadelphia_skyline_from_south_street_bridge.jpg/1200px-Philadelphia_skyline_from_south_street_bridge.jpg",
+    tags: ["History", "Culture", "Urban"],
+    highlights: "Rich history, diverse neighborhoods, strong job market, excellent food scene, accessible transit",
+    costOfLiving: "$2,200"
   }
 ];
 
@@ -228,15 +251,6 @@ export default function Dashboard() {
       <main className="dashboard-main">
         {/* Top Header */}
         <header className="dashboard-header">
-          <div className="search-container">
-            <span className="search-icon">🔍</span>
-            <input 
-              type="text" 
-              placeholder="Search by city, state or vibe..."
-              className="search-input"
-            />
-          </div>
-
           <div className="header-actions">
             <div 
               className="user-avatar" 

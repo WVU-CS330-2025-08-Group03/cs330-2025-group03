@@ -1,45 +1,17 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import authRoutes from './routes/auth.js';
+/*
+  server.js (DEPRECATED)
 
-// Load environment variables
-dotenv.config();
+  This file previously duplicated the server setup that is now implemented
+  in `app.js`. Keeping two files with nearly identical startup logic caused
+  duplicate console output and potential confusion. The application uses
+  `app.js` as the main entrypoint (see `backend/package.json`).
 
-const app = express();
+  To avoid duplicates we keep this file as a small marker explaining the
+  deprecation. If you need to start the server manually, run:
 
-// Configure CORS with credentials
-console.log('NODE_ENV=', process.env.NODE_ENV || 'development');
-console.log('Configured FRONTEND_URL=', process.env.FRONTEND_URL);
+    node app.js
 
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? [process.env.FRONTEND_URL]
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'];
+  or use the project's npm scripts (e.g., `npm start` or `npm run dev`).
+*/
 
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true
-}));
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    ok: true, 
-    env: process.env.NODE_ENV || 'development',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Mount routes
-app.use('/auth', authRoutes);
-
-// Start server - Azure App Service requires using PORT env variable
-const PORT = Number(process.env.PORT) || 5175;
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`);
-});
+export {};

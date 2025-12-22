@@ -203,13 +203,13 @@ router.get('/autocomplete', async (req, res) => {
     }
 
     const query = `
-      SELECT DISTINCT city_name, state, state_code 
+      SELECT DISTINCT city_name, state_code 
       FROM cities 
       WHERE LOWER(city_name) LIKE ? 
       ORDER BY 
         CASE WHEN LOWER(city_name) LIKE ? THEN 0 ELSE 1 END,
         city_name ASC 
-      LIMIT 20
+      LIMIT 10
     `;
     
     const searchTerm = `%${term.toLowerCase()}%`;

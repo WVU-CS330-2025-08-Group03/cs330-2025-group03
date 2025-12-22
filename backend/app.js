@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import compression from 'compression';
 import authRoutes from './routes/auth.js';
 import citiesRoutes from './routes/cities.js';
 import favoritesRoutes from './routes/favorites.js';
@@ -15,6 +16,9 @@ const app = express();
 // Log environment configuration
 console.log(`NODE_ENV= ${process.env.NODE_ENV || 'development'}`);
 console.log(`Configured FRONTEND_URL= ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+
+// Enable response compression for better performance
+app.use(compression());
 
 // Middleware setup - CORS configuration
 // Allow production frontend and localhost for development
